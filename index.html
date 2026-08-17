@@ -1,0 +1,1917 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>نظام إدارة المحل</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0a0908">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="نظام المحل">
+<style>
+:root{
+  --bg:#0a0908;
+  --bg2:#050505;
+  --panel:#151311;
+  --panel2:#1d1a17;
+  --panel3:#242019;
+  --border:#332c22;
+  --border2:#453a29;
+  --orange:#ff7a1a;
+  --orange-d:#c85e0f;
+  --gold:#f0b23c;
+  --gold-soft:#f0b23c33;
+  --grad: linear-gradient(135deg,#ff7a1a 0%,#f0b23c 100%);
+  --grad-soft: linear-gradient(135deg,#ff7a1a22,#f0b23c22);
+  --text:#f2ede4;
+  --muted:#8f8676;
+  --muted2:#6b6255;
+  --success:#3ecf6b;
+  --success-soft:#3ecf6b22;
+  --danger:#ff5555;
+  --danger-soft:#ff555522;
+  --info:#4db8ff;
+  --radius:14px;
+  --radius-sm:9px;
+  --shadow: 0 10px 30px -12px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  background:
+    radial-gradient(1200px 600px at 15% -10%, #ff7a1a14, transparent 60%),
+    radial-gradient(1000px 500px at 100% 0%, #f0b23c10, transparent 55%),
+    var(--bg2);
+  color:var(--text);
+  font-family:"Segoe UI","Tahoma","Arial",sans-serif;
+  min-height:100vh;
+  direction:rtl;
+}
+#app{max-width:1500px;margin:0 auto;padding:18px 20px 70px;}
+::selection{background:var(--gold-soft);}
+button{font-family:inherit;cursor:pointer;border:none;outline:none;}
+input,select{font-family:inherit;outline:none;}
+input::placeholder{color:var(--muted2);}
+.hidden{display:none !important;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+/* ---------- Top bar ---------- */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
+.topbar-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.icon-btn{
+  width:44px;height:44px;border-radius:12px;background:var(--panel);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  color:var(--muted);transition:.15s;
+}
+.icon-btn:hover{border-color:var(--orange);color:var(--orange);}
+.stat-card{
+  background:var(--panel);border:1px solid var(--border);border-radius:12px;
+  padding:8px 18px;min-width:96px;text-align:center;
+}
+.stat-card .v{font-size:22px;font-weight:800;color:var(--gold);}
+.stat-card .l{font-size:12px;color:var(--muted);margin-top:2px;}
+.stat-card.rev .v{color:var(--success);}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.store-id{text-align:left;}
+.store-id .name{font-weight:800;font-size:18px;letter-spacing:.3px;}
+.role-badge{
+  display:inline-block;margin-top:3px;font-size:12px;padding:3px 10px;border-radius:20px;
+  background:var(--gold-soft);color:var(--gold);border:1px solid #f0b23c55;font-weight:600;
+}
+.avatar{
+  width:46px;height:46px;border-radius:12px;background:var(--grad);
+  display:flex;align-items:center;justify-content:center;font-weight:900;color:#1a1200;font-size:18px;
+  box-shadow:var(--shadow);
+}
+
+/* ---------- Tabs ---------- */
+.tabs{display:flex;gap:8px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:6px;margin-bottom:20px;overflow-x:auto;}
+.tab{
+  padding:10px 20px;border-radius:10px;background:transparent;color:var(--muted);font-weight:700;
+  font-size:14.5px;white-space:nowrap;transition:.15s;
+}
+.tab.active{background:var(--grad);color:#1a1200;box-shadow:var(--shadow);}
+.tab:not(.active):hover{color:var(--text);background:var(--panel2);}
+
+/* ---------- Grid / Cards ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+.card{
+  background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px;position:relative;overflow:hidden;transition:.2s;
+}
+.card.active-session{border-color:#ff7a1a55;box-shadow:0 0 0 1px #ff7a1a22, var(--shadow);}
+.badge{display:inline-block;font-size:12px;font-weight:800;padding:4px 12px;border-radius:20px;}
+.badge.free{background:#3ecf6b1f;color:var(--success);border:1px solid #3ecf6b44;}
+.badge.busy{background:var(--grad-soft);color:var(--gold);border:1px solid #f0b23c55;}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.card-title{font-size:19px;font-weight:800;}
+.card-sub{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.6;}
+.timer{font-size:34px;font-weight:900;letter-spacing:1px;margin:10px 0 2px;font-variant-numeric:tabular-nums;}
+.timer.idle{color:var(--muted2);}
+.timer.run{color:var(--text);}
+.time-note{font-size:12px;color:var(--muted);margin-bottom:12px;}
+.divider{border-top:1px dashed var(--border);margin:12px 0;}
+.acc-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.acc-label{font-size:12px;color:var(--muted);}
+.acc-val{font-size:22px;font-weight:800;color:var(--gold);}
+.tag{display:inline-block;font-size:11.5px;background:var(--panel3);border:1px solid var(--border);color:var(--muted);padding:3px 9px;border-radius:8px;}
+.card-actions{display:flex;gap:8px;}
+.btn{
+  border-radius:11px;padding:12px 14px;font-weight:800;font-size:14px;flex:1;
+  display:flex;align-items:center;justify-content:center;gap:6px;transition:.15s;
+}
+.btn-grad{background:var(--grad);color:#1a1200;box-shadow:0 6px 18px -6px #ff7a1a66;}
+.btn-grad:hover{filter:brightness(1.08);}
+.btn-outline{background:var(--panel2);color:var(--text);border:1px solid var(--border2);}
+.btn-outline:hover{border-color:var(--orange);}
+.btn-success{background:var(--success-soft);color:var(--success);border:1px solid #3ecf6b55;}
+.btn-success:hover{background:#3ecf6b33;}
+.btn-danger{background:var(--danger-soft);color:var(--danger);border:1px solid #ff555555;}
+.btn-danger:hover{background:#ff555533;}
+.btn-block{width:100%;}
+.btn-sm{padding:8px 12px;font-size:13px;border-radius:9px;}
+
+/* ---------- Panels / tables ---------- */
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:18px;}
+.panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+.panel-title{font-size:18px;font-weight:800;}
+.panel-desc{font-size:12.5px;color:var(--muted);margin-top:4px;}
+table{width:100%;border-collapse:collapse;}
+thead th{text-align:right;font-size:12.5px;color:var(--muted);font-weight:700;padding:10px 12px;border-bottom:1px solid var(--border);}
+tbody td{padding:13px 12px;font-size:14px;border-bottom:1px solid var(--border);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--panel2);}
+.pill{font-size:12px;padding:3px 10px;border-radius:20px;font-weight:700;}
+.pill.ok{background:var(--success-soft);color:var(--success);}
+.pill.low{background:var(--danger-soft);color:var(--danger);}
+.row-flex{display:flex;align-items:center;gap:8px;}
+.icon-del{
+  width:32px;height:32px;border-radius:8px;background:var(--danger-soft);color:var(--danger);
+  display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;
+}
+.icon-del:hover{background:#ff555540;}
+.small-input{
+  width:80px;background:var(--panel3);border:1px solid var(--border2);color:var(--text);
+  border-radius:8px;padding:8px 10px;font-size:14px;text-align:center;
+}
+.text-input, select.text-input{
+  width:100%;background:var(--panel3);border:1px solid var(--border2);color:var(--text);
+  border-radius:10px;padding:12px 14px;font-size:14.5px;
+}
+.text-input:focus{border-color:var(--orange);}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:7px;font-weight:600;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.empty-state{text-align:center;padding:50px 20px;color:var(--muted);}
+.empty-state .big{font-size:40px;margin-bottom:10px;}
+
+/* stat blocks (reports) */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px;}
+.kpi{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;}
+.kpi .v{font-size:24px;font-weight:900;}
+.kpi .l{font-size:12px;color:var(--muted);margin-top:6px;}
+.kpi.pos .v{color:var(--success);}
+.kpi.neg .v{color:var(--danger);}
+.kpi.gold .v{color:var(--gold);}
+.kpi.info .v{color:var(--info);}
+
+/* toggle switch */
+.switch{position:relative;width:46px;height:26px;flex-shrink:0;}
+.switch input{opacity:0;width:0;height:0;}
+.slider{position:absolute;inset:0;background:var(--panel3);border:1px solid var(--border2);border-radius:20px;transition:.2s;cursor:pointer;}
+.slider:before{content:"";position:absolute;width:18px;height:18px;left:4px;top:3px;background:var(--muted);border-radius:50%;transition:.2s;}
+.switch input:checked + .slider{background:var(--grad-soft);border-color:var(--orange);}
+.switch input:checked + .slider:before{transform:translateX(-20px);background:var(--orange);}
+.perm-row{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);gap:16px;}
+.perm-row:last-child{border-bottom:none;}
+.perm-txt strong{display:block;font-size:14.5px;margin-bottom:3px;}
+.perm-txt span{font-size:12px;color:var(--muted);}
+
+/* ---------- Modal ---------- */
+.overlay{
+  position:fixed;inset:0;background:rgba(4,3,2,.72);backdrop-filter:blur(3px);
+  display:flex;align-items:center;justify-content:center;z-index:100;padding:16px;
+  animation:fade .15s ease;
+}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal{
+  background:var(--panel);border:1px solid var(--border2);border-radius:18px;
+  width:100%;max-width:480px;padding:26px;box-shadow:0 30px 80px -20px #000;
+  max-height:88vh;overflow-y:auto;animation:pop .18s ease;
+}
+.modal.wide{max-width:640px;}
+@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;}
+.modal-title{font-size:19px;font-weight:800;}
+.modal-sub{font-size:12.5px;color:var(--muted);margin-top:4px;}
+.close-x{
+  width:36px;height:36px;border-radius:10px;background:var(--panel2);border:1px solid var(--border);
+  color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;
+}
+.close-x:hover{color:var(--danger);border-color:var(--danger);}
+.item-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.item-tile{
+  position:relative;background:var(--panel2);border:1px solid var(--border);border-radius:12px;
+  padding:14px 10px;text-align:center;transition:.15s;
+}
+.item-tile:hover{border-color:var(--orange);}
+.item-tile .nm{font-weight:800;font-size:14px;}
+.item-tile .pr{font-size:13px;color:var(--gold);margin-top:4px;font-weight:700;}
+.item-tile .st{font-size:11px;color:var(--muted);margin-top:2px;}
+.item-tile .badge-count{
+  position:absolute;top:-8px;left:-8px;background:var(--grad);color:#1a1200;font-weight:900;
+  width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12.5px;
+  box-shadow:0 4px 10px -3px #000;
+}
+.cart-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+.cart-row:last-child{border-bottom:none;}
+.qty-ctrl{display:flex;align-items:center;gap:10px;}
+.qty-btn{width:30px;height:30px;border-radius:8px;background:var(--panel3);border:1px solid var(--border2);color:var(--text);font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.qty-btn:hover{border-color:var(--orange);color:var(--orange);}
+.line{display:flex;justify-content:space-between;padding:9px 0;font-size:14px;color:var(--muted);}
+.line b{color:var(--text);font-weight:700;}
+.total-row{display:flex;justify-content:space-between;align-items:center;padding-top:14px;margin-top:8px;border-top:1px solid var(--border2);}
+.total-row .amt{font-size:26px;font-weight:900;color:var(--gold);}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0;}
+.key{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:16px;font-size:20px;font-weight:800;text-align:center;}
+.key:hover{border-color:var(--orange);}
+.code-dots{display:flex;justify-content:center;gap:12px;margin:22px 0;}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--panel3);border:1px solid var(--border2);}
+.dot.filled{background:var(--grad);border-color:var(--orange);}
+.toast-wrap{position:fixed;bottom:20px;right:20px;left:20px;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:200;pointer-events:none;}
+.toast{
+  background:var(--panel2);border:1px solid var(--border2);color:var(--text);padding:12px 20px;
+  border-radius:12px;font-size:13.5px;font-weight:600;box-shadow:var(--shadow);animation:toastin .2s ease;
+  max-width:400px;text-align:center;
+}
+.toast.err{border-color:#ff555577;color:#ffb3b3;}
+.toast.ok{border-color:#3ecf6b77;color:#a9f2c2;}
+@keyframes toastin{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+.version-tag{
+  position:fixed;bottom:14px;left:14px;font-size:11.5px;color:var(--muted2);
+  background:var(--panel);border:1px solid var(--border);padding:6px 12px;border-radius:20px;
+  z-index:20;letter-spacing:.5px;
+}
+.version-tag:hover{color:var(--gold);border-color:var(--gold);}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px;}
+.login-logo{width:76px;height:76px;border-radius:20px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;color:#1a1200;box-shadow:0 20px 50px -15px #ff7a1a55;margin-bottom:18px;}
+.login-title{font-size:22px;font-weight:900;margin-bottom:4px;}
+.login-sub{color:var(--muted);font-size:13.5px;margin-bottom:26px;}
+.login-box{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:30px;width:100%;max-width:360px;}
+.export-menu{display:flex;gap:8px;flex-wrap:wrap;}
+.note-box{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--muted);line-height:1.7;}
+.link-btn{color:var(--gold);font-weight:700;font-size:13px;background:none;padding:0;}
+.link-btn:hover{text-decoration:underline;}
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-inline-start:6px;}
+.status-dot.on{background:var(--success);box-shadow:0 0 8px #3ecf6b;}
+.status-dot.off{background:var(--muted2);}
+@media (max-width:640px){
+  .item-grid{grid-template-columns:repeat(2,1fr);}
+  .two-col{grid-template-columns:1fr;}
+  .topbar{flex-direction:column;align-items:stretch;}
+  .topbar-right{justify-content:space-between;}
+  .kpi-row{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal-root"></div>
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* =========================================================
+   نظام إدارة المحل - يعمل بالكامل بدون إنترنت
+   البيانات تُحفظ محليًا وتتزامن سحابيًا تلقائيًا عند توفر الاتصال
+   ========================================================= */
+
+let S = null;          // persisted state
+let UI = {              // transient UI state (not persisted)
+  view:'devices',
+  obType:null,
+  loginCode:'',
+  loginErr:'',
+  cp:false,             // control panel unlocked
+  cpPinInput:'',
+  cpErr:'',
+  cpView:'store',
+  activeOrderDevice:null,   // {kind:'device'|'table', id}
+  orderCart:{},
+  activeEndTarget:null,     // {kind:'device'|'table', id}
+  endDiscount:0,
+  saving:false,
+  online: navigator.onLine
+};
+let saveTimer=null;
+
+/* ---------------- storage ---------------- */
+function defaultState(){
+  return {
+    setup:false,
+    businessType:null, // 'restaurant' | 'cafe' | 'cyber' | 'both'
+    storeName:'',
+    currency:'ج',
+    controlPin:null,
+    employees:[],
+    devices:[],
+    tables:[],
+    inventory:[],
+    invoices:[],
+    expenses:[],
+    permissions:{
+      hideRevenueFromEmployee:true,
+      employeeSeeBuyPrices:false,
+      allowEmployeeCancelInvoice:false,
+      maxDiscountEmployee:0
+    },
+    license:{
+      firstRun:null,       // ts of first app launch
+      lastSeen:null,        // ts of last successful open (anti clock-rollback)
+      activationCode:null,  // last accepted code
+      activatedUntil:null,  // ts
+      locked:false
+    },
+    version:'1.1.0'
+  };
+}
+
+const STORAGE_KEY = 'pos_main_data_v1';
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      S = JSON.parse(raw);
+      const d = defaultState();
+      for(const k in d){ if(!(k in S)) S[k]=d[k]; }
+    } else {
+      S = defaultState();
+    }
+  }catch(e){
+    S = defaultState();
+  }
+  render();
+}
+
+function persist(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(S));
+      UI.online = true;
+    }catch(e){
+      UI.online = false;
+      toast('تعذر الحفظ — المساحة المتاحة في المتصفح ممتلئة','err');
+    }
+  }, 250);
+}
+
+function downloadBackup(){
+  const blob = new Blob([JSON.stringify(S,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download = `نسخة-احتياطية-${fmtDate(Date.now())}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function restoreBackup(file){
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    try{
+      const data = JSON.parse(e.target.result);
+      S = data; persist(); render(); toast('تم استرجاع النسخة الاحتياطية','ok');
+    }catch(err){ toast('الملف غير صالح','err'); }
+  };
+  reader.readAsText(file);
+}
+
+/* ---------------- categories ---------------- */
+const CAT_ORDER = ['product','hot','cold','shisha'];
+const CAT_LABELS = { product:'منتجات جاهزة', hot:'مشروبات ساخنة', cold:'مشروبات باردة', shisha:'الشيشة' };
+
+/* ---------------- entities (devices + tables) ---------------- */
+function getEntity(target){
+  if(!target) return null;
+  return target.kind==='table' ? S.tables.find(t=>t.id===target.id) : S.devices.find(d=>d.id===target.id);
+}
+
+/* ---------------- helpers ---------------- */
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function money(n){ n = Math.round(n||0); return n.toLocaleString('en-US'); }
+function todayKey(d){ const x=new Date(d); return x.getFullYear()+'-'+(x.getMonth()+1)+'-'+x.getDate(); }
+function isToday(ts){ return todayKey(ts)===todayKey(Date.now()); }
+function startOfWeek(ts){
+  const d=new Date(ts); const day=(d.getDay()+1)%7; // make Sat=0 .. Fri=6 (approx MENA week) -> simpler: use Mon start
+  const dt = new Date(d); const wd = d.getDay(); const diff = (wd===0? -6 : 1-wd); // Monday as start
+  dt.setDate(d.getDate()+diff); dt.setHours(0,0,0,0); return dt.getTime();
+}
+function isThisWeek(ts){ return ts >= startOfWeek(Date.now()); }
+function isThisMonth(ts){
+  const a=new Date(ts), b=new Date();
+  return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth();
+}
+function fmtTime(ts){
+  const d=new Date(ts); let h=d.getHours(); const m=d.getMinutes().toString().padStart(2,'0');
+  const ap = h>=12?'PM':'AM'; h=h%12; if(h===0)h=12;
+  return h+':'+m+' '+ap;
+}
+function fmtDate(ts){
+  const d=new Date(ts);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function elapsedStr(startTs){
+  const s = Math.max(0, Math.floor((Date.now()-startTs)/1000));
+  const hh = Math.floor(s/3600), mm = Math.floor((s%3600)/60), ss = s%60;
+  if(hh>0) return String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+  return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+}
+function toast(msg, type){
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = 'toast '+(type||'');
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(()=>el.remove(),300); }, 2600);
+}
+function esc(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function currentUser(){ return UI.loggedIn; }
+function isOwner(){ return UI.loggedIn && UI.loggedIn.role==='owner'; }
+
+/* ---------------- session math ---------------- */
+function sessionMinutes(session){ return (Date.now()-session.start)/60000; }
+function timeCostFor(device, session, atTs){
+  const rate = session.mode==='dual' ? (device.rateDual||0) : (device.rateSingle||0);
+  const minutes = ((atTs||Date.now())-session.start)/60000;
+  const cost = (minutes/60)*rate;
+  return Math.round(cost);
+}
+function ordersCostFor(session){
+  return (session.orders||[]).reduce((s,o)=>s+o.qty*o.price,0);
+}
+function ordersCountFor(session){
+  return (session.orders||[]).reduce((s,o)=>s+o.qty,0);
+}
+
+/* ================= LICENSE / TRIAL SYSTEM =================
+   ملاحظة أمانة: ده أفضل حماية ممكنة داخل متصفح ويب (مفيش وصول حقيقي
+   لسيريال الجهاز من المتصفح لأسباب أمنية عامة). بصمة الجهاز هنا مبنية
+   من مواصفات الجهاز + رقم تركيب عشوائي بيتولد أول مرة ويتخزن منفصل
+   عن بيانات المحل (عشان مسح البيانات ميرجعش عداد التجربة).
+   ================================================================ */
+const LICENSE_SECRET = 'DOSX-CHANGE-THIS-SECRET-BEFORE-SHIPPING-2026'; // غيّرها لسر خاص بيك، ونفس القيمة بالظبط في ملف مولد الأكواد
+const TRIAL_DAYS = 3;
+const LIC_KEY = 'pos_license_v1';
+const CLOCK_TOLERANCE_MS = 3*60*1000; // 3 دقائق سماح لفروق الساعة الطبيعية
+let LIC = null;
+
+async function hmacHex(secret, data){
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', enc.encode(secret), {name:'HMAC', hash:'SHA-256'}, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(data));
+  return Array.from(new Uint8Array(sig)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function loadLicense(){
+  try{
+    const raw = localStorage.getItem(LIC_KEY);
+    if(raw) LIC = JSON.parse(raw);
+  }catch(e){}
+  if(!LIC || !LIC.seed){
+    LIC = { seed: uid()+uid()+uid(), firstRun: Date.now(), lastSeen: Date.now(), activation:null };
+    saveLicense();
+  }
+}
+function saveLicense(){ try{ localStorage.setItem(LIC_KEY, JSON.stringify(LIC)); }catch(e){} }
+function touchLicense(){
+  if(!LIC) return;
+  LIC.lastSeen = Date.now();
+  saveLicense();
+}
+
+function deviceFingerprint(){
+  const bits = [
+    LIC.seed,
+    navigator.userAgent||'',
+    (screen.width||0)+'x'+(screen.height||0),
+    navigator.hardwareConcurrency||'',
+    (Intl.DateTimeFormat().resolvedOptions().timeZone)||'',
+    navigator.language||''
+  ].join('|');
+  let h1=0, h2=0;
+  for(let i=0;i<bits.length;i++){
+    h1 = (h1*31 + bits.charCodeAt(i))>>>0;
+    h2 = (h2*131 + bits.charCodeAt(i))>>>0;
+  }
+  return (h1.toString(36)+h2.toString(36)).toUpperCase().slice(0,10);
+}
+
+function licenseStatus(){
+  const now = Date.now();
+  const tamper = !!(LIC.lastSeen && now < (LIC.lastSeen - CLOCK_TOLERANCE_MS));
+  const fp = deviceFingerprint();
+  const activated = !!(LIC.activation && LIC.activation.deviceId===fp && LIC.activation.expiresAt>now);
+  const trialEnd = LIC.firstRun + TRIAL_DAYS*86400000;
+  const inTrial = !activated && now < trialEnd;
+  const locked = tamper || (!activated && !inTrial);
+  return {
+    tamper, activated, inTrial, locked, fp,
+    trialDaysLeft: Math.max(0, Math.ceil((trialEnd-now)/86400000)),
+    activeDaysLeft: activated? Math.max(0, Math.ceil((LIC.activation.expiresAt-now)/86400000)) : 0
+  };
+}
+
+async function tryActivate(codeRaw){
+  const fp = deviceFingerprint();
+  const code = (codeRaw||'').trim().toUpperCase().replace(/\s+/g,'');
+  const m = code.match(/^(\d{1,4})-([A-Z0-9]{6,12})$/);
+  if(!m) return {ok:false, msg:'صيغة الكود غير صحيحة'};
+  const days = parseInt(m[1]);
+  const providedSig = m[2];
+  const full = await hmacHex(LICENSE_SECRET, fp+'|'+days);
+  const expectedSig = full.slice(0,10).toUpperCase();
+  if(providedSig !== expectedSig) return {ok:false, msg:'الكود غير صحيح أو غير خاص بهذا الجهاز'};
+  LIC.activation = { deviceId:fp, days, expiresAt: Date.now()+days*86400000, code, activatedAt: Date.now() };
+  saveLicense();
+  return {ok:true};
+}
+
+function activationScreen(lic){
+  return `
+  <div class="login-wrap">
+    <div class="login-logo">🔒</div>
+    <div class="login-title">${lic.tamper? 'تم اكتشاف تلاعب في تاريخ الجهاز':'انتهت الفترة المسموحة'}</div>
+    <div class="login-sub">${lic.tamper? 'رجّع تاريخ وساعة الجهاز صح، أو أدخل كود تفعيل جديد' : 'أدخل كود التفعيل الشهري للاستمرار'}</div>
+    <div class="login-box">
+      <div class="note-box" style="margin-bottom:16px;text-align:center;">
+        كود جهازك (ابعته لمزوّد النظام):<br>
+        <div style="font-size:20px;font-weight:900;letter-spacing:2px;color:var(--gold);margin-top:8px;">${lic.fp}</div>
+      </div>
+      <div class="field"><label>كود التفعيل</label><input class="text-input" id="act-code" placeholder="30-XXXXXXXXXX" style="text-align:center;letter-spacing:1px;"></div>
+      <button class="btn btn-grad btn-block" id="act-submit">تفعيل</button>
+      <div id="act-err" style="color:var(--danger);font-size:12.5px;margin-top:10px;text-align:center;"></div>
+    </div>
+  </div>`;
+}
+function attachActivationScreen(lic){
+  document.getElementById('act-submit').onclick=async ()=>{
+    const btn = document.getElementById('act-submit');
+    btn.textContent='جاري التحقق...';
+    const res = await tryActivate(document.getElementById('act-code').value);
+    if(res.ok){ toast('تم التفعيل بنجاح','ok'); render(); }
+    else { document.getElementById('act-err').textContent = res.msg; btn.textContent='تفعيل'; }
+  };
+}
+function trialBanner(lic){
+  if(lic.activated) return `<div class="note-box" style="margin-bottom:14px;">مفعّل — باقي ${lic.activeDaysLeft} يوم على انتهاء الاشتراك.</div>`;
+  if(lic.inTrial) return `<div class="note-box" style="margin-bottom:14px;border-color:var(--gold);color:var(--gold);">فترة تجريبية — باقي ${lic.trialDaysLeft} يوم. كود جهازك: <b>${lic.fp}</b></div>`;
+  return '';
+}
+
+/* ---------------- render root ---------------- */
+function render(){
+  const app = document.getElementById('app');
+  if(!S){ app.innerHTML=''; return; }
+  const lic = licenseStatus();
+  if(lic.locked){ app.innerHTML = activationScreen(lic); attachActivationScreen(lic); return; }
+  if(!S.setup){ app.innerHTML = onboardingScreen(); attachOnboarding(); return; }
+  if(!UI.loggedIn){ app.innerHTML = loginScreen(); attachLogin(); return; }
+  app.innerHTML = shellScreen();
+  attachShell();
+}
+
+/* ================= ONBOARDING ================= */
+const BIZ_TYPES = [
+  ['restaurant','🍽','مطعم'],
+  ['cafe','☕','كافيه'],
+  ['cyber','🎮','سايبر / بلايستيشن'],
+  ['both','✨','كافيه وسايبر']
+];
+function onboardingScreen(){
+  if(!UI.obType){
+    return `
+    <div class="login-wrap">
+      <div class="login-logo">◆</div>
+      <div class="login-title">إيه نوع النشاط؟</div>
+      <div class="login-sub">هنظبطلك الشاشات والأقسام على حسب نوع محلك</div>
+      <div class="login-box" style="max-width:420px;">
+        <div class="two-col" style="gap:12px;">
+          ${BIZ_TYPES.map(b=>`<div class="item-tile" style="padding:24px 10px;cursor:pointer;" data-biz="${b[0]}">
+            <div style="font-size:30px;margin-bottom:6px;">${b[1]}</div>
+            <div class="nm">${b[2]}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }
+  return `
+  <div class="login-wrap">
+    <div class="login-logo">◆</div>
+    <div class="login-title">إعداد النظام لأول مرة</div>
+    <div class="login-sub">هتاخد منك دقيقة واحدة بس</div>
+    <div class="login-box">
+      <div class="field">
+        <label>اسم المحل</label>
+        <input class="text-input" id="ob-name" placeholder="مثال: محل الأصدقاء">
+      </div>
+      <div class="field">
+        <label>رمز العملة</label>
+        <input class="text-input" id="ob-cur" value="ج" maxlength="3">
+      </div>
+      <div class="field">
+        <label>كود دخول صاحب المحل (5 أرقام)</label>
+        <input class="text-input" id="ob-owner-code" maxlength="5" inputmode="numeric" placeholder="12345">
+      </div>
+      <div class="field">
+        <label>كلمة سر لوحة التحكم</label>
+        <input class="text-input" id="ob-pin" type="password" maxlength="12" placeholder="•••••">
+      </div>
+      <div class="note-box">لوحة التحكم بتتفتح بعد كده بالضغط على رقم الإصدار تحت يمين الشاشة، وهي المكان الوحيد اللي ممكن تمسح منه أي بيانات.</div>
+      <div style="height:14px"></div>
+      <button class="btn btn-outline btn-block" id="ob-back" style="margin-bottom:10px;">رجوع لاختيار النشاط</button>
+      <button class="btn btn-grad btn-block" id="ob-submit">ابدأ الاستخدام</button>
+      <div id="ob-err" style="color:var(--danger);font-size:12.5px;margin-top:10px;text-align:center;"></div>
+    </div>
+  </div>`;
+}
+function attachOnboarding(){
+  if(!UI.obType){
+    document.querySelectorAll('[data-biz]').forEach(t=>{
+      t.onclick=()=>{ UI.obType = t.getAttribute('data-biz'); render(); };
+    });
+    return;
+  }
+  document.getElementById('ob-back').onclick=()=>{ UI.obType=null; render(); };
+  document.getElementById('ob-submit').onclick=()=>{
+    const name = document.getElementById('ob-name').value.trim();
+    const cur = document.getElementById('ob-cur').value.trim()||'ج';
+    const code = document.getElementById('ob-owner-code').value.trim();
+    const pin = document.getElementById('ob-pin').value.trim();
+    const err = document.getElementById('ob-err');
+    if(!name){ err.textContent='من فضلك اكتب اسم المحل'; return; }
+    if(!/^\d{5}$/.test(code)){ err.textContent='كود الدخول لازم يكون 5 أرقام'; return; }
+    if(!pin || pin.length<4){ err.textContent='كلمة سر لوحة التحكم لازم تكون 4 حروف/أرقام على الأقل'; return; }
+    S.storeName=name; S.currency=cur; S.controlPin=pin;
+    S.businessType = UI.obType;
+    S.employees.push({id:uid(), name:'صاحب المحل', role:'owner', code, salaryMonthly:0, advances:[]});
+    S.setup=true;
+    persist();
+    toast('تم إعداد النظام بنجاح','ok');
+    render();
+  };
+}
+
+/* ================= LOGIN ================= */
+function loginScreen(){
+  return `
+  <div class="login-wrap">
+    <div class="login-logo">◆</div>
+    <div class="login-title">${esc(S.storeName)}</div>
+    <div class="login-sub">ادخل كود الدخول الخاص بيك</div>
+    <div class="login-box">
+      <div class="code-dots">
+        ${[0,1,2,3,4].map(i=>`<div class="dot ${UI.loginCode.length>i?'filled':''}"></div>`).join('')}
+      </div>
+      <div class="keypad">
+        ${[1,2,3,4,5,6,7,8,9].map(n=>`<div class="key" data-num="${n}">${n}</div>`).join('')}
+        <div class="key" data-num="clear" style="color:var(--danger);font-size:14px;">مسح</div>
+        <div class="key" data-num="0">0</div>
+        <div class="key" data-num="back" style="font-size:14px;">⌫</div>
+      </div>
+      ${UI.loginErr? `<div style="color:var(--danger);text-align:center;font-size:13px;margin-bottom:8px;">${esc(UI.loginErr)}</div>`:''}
+    </div>
+  </div>`;
+}
+function attachLogin(){
+  document.querySelectorAll('.key').forEach(k=>{
+    k.onclick=()=>{
+      const n = k.getAttribute('data-num');
+      if(n==='clear'){ UI.loginCode=''; }
+      else if(n==='back'){ UI.loginCode = UI.loginCode.slice(0,-1); }
+      else { if(UI.loginCode.length<5) UI.loginCode += n; }
+      UI.loginErr='';
+      if(UI.loginCode.length===5){
+        const emp = S.employees.find(e=>e.code===UI.loginCode);
+        if(emp){ UI.loggedIn = emp; UI.loginCode=''; UI.view='devices'; toast('أهلاً '+emp.name,'ok'); }
+        else { UI.loginErr='الكود غير صحيح'; UI.loginCode=''; }
+      }
+      render();
+    };
+  });
+}
+
+/* ================= SHELL ================= */
+function showDevicesTab(){ return S.businessType==='cyber' || S.businessType==='both'; }
+function showTablesTab(){ return S.businessType==='restaurant' || S.businessType==='cafe' || S.businessType==='both'; }
+
+function shellScreen(){
+  const activeDevices = S.devices.filter(d=>d.status==='active').length;
+  const activeTables = S.tables.filter(t=>t.status==='active').length;
+  const invToday = S.invoices.filter(i=>isToday(i.date));
+  const revToday = invToday.reduce((s,i)=>s+i.total,0);
+  const hideRev = UI.loggedIn.role==='employee' && S.permissions.hideRevenueFromEmployee;
+
+  const pendingOrdersCount =
+    S.devices.filter(d=>d.status==='active').reduce((s,d)=>s+ordersCountFor(d.session),0) +
+    S.tables.filter(t=>t.status==='active').reduce((s,t)=>s+ordersCountFor(t.session),0);
+
+  const tabs = [];
+  if(showDevicesTab()) tabs.push(['devices','الأجهزة']);
+  if(showTablesTab()) tabs.push(['tables','الطاولات']);
+  tabs.push(['orders', pendingOrdersCount>0? `الطلبات (${pendingOrdersCount})` : 'الطلبات']);
+  tabs.push(['invoices','الفواتير']);
+  tabs.push(['inventory','المخزون']);
+  tabs.push(['reports','التقارير']);
+  if(!isOwner()) tabs.push(['myaccount','حسابي']);
+
+  return `
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="icon-btn" id="btn-lock" title="تسجيل خروج">⏻</div>
+      <div class="stat-card"><div class="v">${invToday.length}</div><div class="l">جلسات اليوم</div></div>
+      ${showDevicesTab()? `<div class="stat-card"><div class="v">${activeDevices}/${S.devices.length}</div><div class="l">أجهزة شغالة</div></div>`:''}
+      ${showTablesTab()? `<div class="stat-card"><div class="v">${activeTables}/${S.tables.length}</div><div class="l">طاولات مشغولة</div></div>`:''}
+      <div class="stat-card rev"><div class="v">${hideRev?'—':money(revToday)}</div><div class="l">إيراد اليوم</div></div>
+    </div>
+    <div class="topbar-right">
+      <div class="store-id">
+        <div class="name">${esc(S.storeName)}</div>
+        <div class="role-badge">${UI.loggedIn.role==='owner'?'صاحب المحل':'موظف'} — ${esc(UI.loggedIn.name)}</div>
+      </div>
+      <div class="avatar">${esc(S.storeName.slice(0,1)||'?')}</div>
+    </div>
+  </div>
+
+  ${!licenseStatus().activated? trialBanner(licenseStatus()) : ''}
+  <div class="tabs">
+    ${tabs.map(t=>`<div class="tab ${UI.view===t[0]?'active':''}" data-tab="${t[0]}">${t[1]}</div>`).join('')}
+  </div>
+
+  <div id="viewport"></div>
+  <div class="version-tag" id="verTag">الإصدار ${esc(S.version)} <span class="status-dot ${UI.online?'on':'off'}"></span></div>
+  `;
+}
+
+function attachShell(){
+  document.getElementById('btn-lock').onclick=()=>{ UI.loggedIn=null; UI.view = showDevicesTab()?'devices':(showTablesTab()?'tables':'orders'); render(); };
+  document.getElementById('verTag').onclick=openControlPanelGate;
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.onclick=()=>{ UI.view=t.getAttribute('data-tab'); render(); };
+  });
+  // land on a valid default tab if the current one isn't visible for this business type
+  if((UI.view==='devices' && !showDevicesTab()) || (UI.view==='tables' && !showTablesTab())){
+    UI.view = showDevicesTab()? 'devices' : (showTablesTab()? 'tables' : 'orders');
+  }
+  renderViewport();
+}
+
+function renderViewport(){
+  const vp = document.getElementById('viewport');
+  if(!vp) return;
+  if(UI.view==='devices') { vp.innerHTML = devicesView(); attachDevicesView(); }
+  else if(UI.view==='tables'){ vp.innerHTML = tablesView(); attachTablesView(); }
+  else if(UI.view==='orders'){ vp.innerHTML = ordersView(); attachOrdersView(); }
+  else if(UI.view==='invoices'){ vp.innerHTML = invoicesView(); attachInvoicesView(); }
+  else if(UI.view==='inventory'){ vp.innerHTML = inventoryView(); attachInventoryView(); }
+  else if(UI.view==='reports'){ vp.innerHTML = reportsView(); attachReportsView(); }
+  else if(UI.view==='myaccount'){ vp.innerHTML = myAccountView(); attachMyAccountView(); }
+}
+
+/* ================= DEVICES VIEW ================= */
+function devicesView(){
+  if(S.devices.length===0){
+    return `<div class="panel"><div class="empty-state"><div class="big">🎮</div>
+      <div style="font-weight:800;font-size:16px;margin-bottom:6px;">مفيش أجهزة مضافة لسه</div>
+      <div>${isOwner()? 'ادخل لوحة التحكم من رقم الإصدار تحت وضيف أول جهاز' : 'كلم صاحب المحل يضيف الأجهزة من لوحة التحكم'}</div>
+    </div></div>`;
+  }
+  return `<div class="grid">${S.devices.map(d=>entityCard(d,'device')).join('')}</div>`;
+}
+function attachDevicesView(){ attachEntityCards('device'); }
+
+/* ================= TABLES VIEW ================= */
+function tablesView(){
+  if(S.tables.length===0){
+    return `<div class="panel"><div class="empty-state"><div class="big">🍽</div>
+      <div style="font-weight:800;font-size:16px;margin-bottom:6px;">مفيش طاولات مضافة لسه</div>
+      <div>${isOwner()? 'ادخل لوحة التحكم من رقم الإصدار تحت وضيف طاولات' : 'كلم صاحب المحل يضيف الطاولات من لوحة التحكم'}</div>
+    </div></div>`;
+  }
+  return `<div class="grid">${S.tables.map(t=>entityCard(t,'table')).join('')}</div>`;
+}
+function attachTablesView(){ attachEntityCards('table'); }
+
+/* ---- shared card renderer for both devices & tables ---- */
+function entityCard(e, kind){
+  const active = e.status==='active';
+  const session = e.session;
+  const isDevice = kind==='device';
+  const ordersTotal = active? ordersCostFor(session):0;
+  const ordersCount = active? ordersCountFor(session):0;
+  const unpaidCount = active? (session.orders||[]).filter(o=>!o.paid).length : 0;
+  const rateLine = isDevice
+    ? (e.dual? `زوجي · ${e.rateDual}${S.currency}/ساعة · فردي · ${e.rateSingle}${S.currency}/ساعة` : `فردي فقط · ${e.rateSingle}${S.currency}/ساعة`)
+    : (e.capacity? `${e.capacity} أشخاص` : 'طاولة');
+  const opener = active ? (session.customer? esc(session.customer): 'بدون اسم') : '';
+  return `
+  <div class="card ${active?'active-session':''}">
+    <div class="card-head">
+      <div>
+        <div class="badge ${active?'busy':'free'}">${active?'شغال':'فاضي'}</div>
+        <div class="card-title" style="margin-top:8px;">${esc(e.name)}</div>
+        <div class="card-sub">${rateLine}${active? ' · '+opener + (isDevice && session.mode==='dual'?' · زوجي':(isDevice?' · فردي':'')):''}</div>
+      </div>
+    </div>
+    ${isDevice? `
+    <div class="timer ${active?'run':'idle'}" data-timer="${e.id}">${active? elapsedStr(session.start):'00:00'}</div>
+    <div class="time-note">${active? 'بدأت '+fmtTime(session.start):'الجهاز جاهز'}</div>
+    `:''}
+    <div class="divider"></div>
+    <div class="acc-row">
+      <div class="acc-label">الحساب الحالي</div>
+      <div class="acc-val">${ordersTotal} ${S.currency}</div>
+    </div>
+    ${active && ordersCount>0? `
+    <div style="margin-bottom:12px;">
+      ${(session.orders||[]).map(o=>`<div class="cart-row" data-toggle-paid="${kind}:${e.id}:${o.id}" style="cursor:pointer;">
+        <div>${esc(o.name)} <span style="color:var(--muted);">× ${o.qty}</span>${o.orderedFor? ` <span class="tag">${esc(o.orderedFor)}</span>`:''}</div>
+        <span class="pill ${o.paid?'ok':'low'}">${o.paid?'مدفوع':'لسه'}</span>
+      </div>`).join('')}
+    </div>`:''}
+    <div class="card-actions">
+      ${active
+        ? `<button class="btn btn-success" data-end="${kind}:${e.id}">إنهاء وحساب</button><button class="btn btn-outline" data-order="${kind}:${e.id}">+ طلب</button>`
+        : (isDevice
+            ? `<button class="btn btn-grad btn-block" data-start="${e.id}">ابدأ الجلسة</button>`
+            : `<button class="btn btn-grad btn-block" data-order="${kind}:${e.id}">+ فتح طاولة / طلب</button>`)
+      }
+    </div>
+  </div>`;
+}
+function attachEntityCards(kind){
+  document.querySelectorAll('[data-start]').forEach(b=> b.onclick=()=> openStartSessionModal(b.getAttribute('data-start')));
+  document.querySelectorAll('[data-order]').forEach(b=> b.onclick=()=>{
+    const [k,id] = b.getAttribute('data-order').split(':'); openOrderModal(k,id);
+  });
+  document.querySelectorAll('[data-end]').forEach(b=> b.onclick=()=>{
+    const [k,id] = b.getAttribute('data-end').split(':'); openCheckoutModal(k,id);
+  });
+  document.querySelectorAll('[data-toggle-paid]').forEach(row=> row.onclick=(ev)=>{
+    ev.stopPropagation();
+    const [k,id,entryId] = row.getAttribute('data-toggle-paid').split(':');
+    const ent = getEntity({kind:k,id});
+    const entry = ent.session.orders.find(o=>o.id===entryId);
+    if(entry){ entry.paid=!entry.paid; persist(); renderViewport(); }
+  });
+  clearInterval(window.__timerInt);
+  window.__timerInt = setInterval(()=>{
+    document.querySelectorAll('[data-timer]').forEach(el=>{
+      const d = S.devices.find(x=>x.id===el.getAttribute('data-timer'));
+      if(d && d.status==='active') el.textContent = elapsedStr(d.session.start);
+    });
+  },1000);
+}
+
+/* ================= ORDERS VIEW (live prep list) ================= */
+function ordersView(){
+  const activeD = S.devices.filter(d=>d.status==='active' && ordersCountFor(d.session)>0).map(d=>({e:d,kind:'device'}));
+  const activeT = S.tables.filter(t=>t.status==='active' && ordersCountFor(t.session)>0).map(t=>({e:t,kind:'table'}));
+  const active = [...activeD, ...activeT];
+  const agg = {};
+  active.forEach(({e})=> (e.session.orders||[]).filter(o=>!o.paid || true).forEach(o=>{
+    if(!agg[o.name]) agg[o.name]={name:o.name, qty:0};
+    agg[o.name].qty += o.qty;
+  }));
+  const aggList = Object.values(agg).sort((a,b)=>b.qty-a.qty);
+
+  if(active.length===0){
+    return `<div class="panel"><div class="empty-state"><div class="big">🧾</div>
+      <div style="font-weight:800;font-size:16px;margin-bottom:6px;">مفيش طلبات حالياً</div>
+      <div>أي طلب كافيه أو شيشة يتضاف هيظهر هنا فورًا للتحضير</div>
+    </div></div>`;
+  }
+
+  return `
+  ${aggList.length>0? `
+  <div class="panel">
+    <div class="panel-head"><div><div class="panel-title">قائمة التحضير الإجمالية</div><div class="panel-desc">مجموع كل الطلبات المفتوحة الآن — للتحضير دفعة واحدة</div></div></div>
+    <div class="item-grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr));">
+      ${aggList.map(a=>`<div class="item-tile"><div class="badge-count" style="position:static;display:inline-flex;margin-bottom:6px;">${a.qty}</div><div class="nm">${esc(a.name)}</div></div>`).join('')}
+    </div>
+  </div>`:''}
+
+  <div class="grid">
+    ${active.map(({e,kind})=>{
+      const s = e.session;
+      return `<div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">${esc(e.name)} <span class="tag">${kind==='device'?'جهاز':'طاولة'}</span></div>
+            <div class="card-sub">${esc(s.customer||'بدون اسم')}${kind==='device'?' · بدأت '+fmtTime(s.start):''}</div>
+          </div>
+          <div class="badge busy">${ordersCountFor(s)} طلب</div>
+        </div>
+        <div class="divider"></div>
+        ${(s.orders||[]).map(o=>`<div class="line"><div>${esc(o.name)}${o.orderedFor?' — '+esc(o.orderedFor):''}</div><b>× ${o.qty} <span class="pill ${o.paid?'ok':'low'}" style="margin-right:6px;">${o.paid?'مدفوع':'لسه'}</span></b></div>`).join('')}
+        <div class="total-row"><div>إجمالي الكافيه</div><div class="amt">${ordersCostFor(s)} ${S.currency}</div></div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+function attachOrdersView(){ /* view only, no actions needed */ }
+
+/* ---- start session modal (devices only — tables auto-open on first order) ---- */
+function openStartSessionModal(deviceId){
+  const d = S.devices.find(x=>x.id===deviceId);
+  if(!d) return;
+  openModal(`
+    <div class="modal-head">
+      <div><div class="modal-title">بدء جلسة — ${esc(d.name)}</div><div class="modal-sub">حدد بيانات الجلسة</div></div>
+      <div class="close-x" id="mclose">✕</div>
+    </div>
+    <div class="field">
+      <label>اسم العميل (اختياري)</label>
+      <input class="text-input" id="ss-customer" placeholder="اسم العميل">
+    </div>
+    ${d.dual? `
+    <div class="field">
+      <label>نوع الجلسة</label>
+      <select class="text-input" id="ss-mode">
+        <option value="single">فردي — ${d.rateSingle}${S.currency}/ساعة</option>
+        <option value="dual">زوجي — ${d.rateDual}${S.currency}/ساعة</option>
+      </select>
+    </div>` : `<input type="hidden" id="ss-mode" value="single">`}
+    <button class="btn btn-grad btn-block" id="ss-submit">بدء الجلسة</button>
+  `);
+  document.getElementById('mclose').onclick=closeModal;
+  document.getElementById('ss-submit').onclick=()=>{
+    const customer = document.getElementById('ss-customer').value.trim();
+    const mode = document.getElementById('ss-mode').value;
+    d.status='active';
+    d.session={ start:Date.now(), customer, mode, orders:[] };
+    persist(); closeModal(); renderViewport();
+    toast('بدأت الجلسة','ok');
+  };
+}
+
+/* ---- order modal (shared: devices + tables) ---- */
+function openOrderModal(kind, id){
+  const ent = getEntity({kind,id});
+  if(!ent) return;
+  if(kind==='device' && ent.status!=='active') return;
+  if(kind==='table' && ent.status!=='active'){
+    ent.status='active'; ent.session={ customer:'', orders:[] };
+  }
+  UI.activeOrderDevice = {kind,id};
+  UI.orderCart = {};
+  renderOrderModal();
+}
+function renderOrderModal(){
+  const target = UI.activeOrderDevice;
+  const ent = getEntity(target);
+  if(!ent) return;
+  const items = S.inventory;
+  const cartIds = Object.keys(UI.orderCart).filter(k=>UI.orderCart[k]>0);
+  const cartTotal = cartIds.reduce((s,id)=>{
+    const it = items.find(x=>x.id===id); return s+(it? it.sellPrice*UI.orderCart[id]:0);
+  },0);
+  openModal(`
+    <div class="modal-head">
+      <div><div class="modal-title">طلبات الكافيه</div><div class="modal-sub">${esc(ent.name)}</div></div>
+      <div class="close-x" id="mclose">✕</div>
+    </div>
+    ${target.kind==='table'? `<div class="field"><label>اسم العميل على الطاولة (اختياري)</label>
+      <input class="text-input" id="ord-table-customer" value="${esc(ent.session.customer||'')}" placeholder="اسم العميل"></div>`:''}
+    <div class="field"><label>اسم اللي طلب (اختياري — لو مختلف عن صاحب الطلب الأساسي)</label>
+      <input class="text-input" id="ord-for" placeholder="مثلاً: محمد"></div>
+    ${items.length===0? `<div class="empty-state"><div class="big">☕</div>مفيش أصناف مضافة في المخزون</div>` : `
+    ${CAT_ORDER.map(catKey=>{
+      const catItems = items.filter(it=>(it.category||'product')===catKey);
+      if(catItems.length===0) return '';
+      return `<div style="font-size:12.5px;color:var(--muted);font-weight:700;margin:${catKey===CAT_ORDER[0]?'0':'14px'} 0 8px;">${CAT_LABELS[catKey]}</div>
+      <div class="item-grid">
+      ${catItems.map(it=>{
+        const c = UI.orderCart[it.id]||0;
+        return `<div class="item-tile" data-add="${it.id}">
+          ${c>0?`<div class="badge-count">${c}</div>`:''}
+          <div class="nm">${esc(it.name)}</div>
+          <div class="pr">${it.sellPrice} ${S.currency}</div>
+          <div class="st">باقي ${it.qty}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+    }).join('')}
+    ${cartIds.length>0? `<div class="divider"></div>${cartIds.map(id=>{
+      const it = items.find(x=>x.id===id);
+      return `<div class="cart-row">
+        <div class="qty-ctrl">
+          <div class="qty-btn" data-inc="${id}">+</div>
+          <span>${UI.orderCart[id]}</span>
+          <div class="qty-btn" data-dec="${id}">−</div>
+        </div>
+        <div>${it.sellPrice*UI.orderCart[id]} ${S.currency} <span style="color:var(--muted);font-size:12px;">${esc(it.name)}</span></div>
+      </div>`;
+    }).join('')}
+    <div class="total-row"><div>إجمالي الطلبات</div><div class="amt">${cartTotal} ${S.currency}</div></div>
+    `:''}
+    `}
+    <div style="height:14px"></div>
+    <button class="btn btn-grad btn-block" id="order-confirm">تم</button>
+  `);
+  document.getElementById('mclose').onclick=()=>{ UI.activeOrderDevice=null; closeModal(); };
+  document.querySelectorAll('[data-add]').forEach(t=>{
+    t.onclick=()=>{
+      const id = t.getAttribute('data-add');
+      const it = items.find(x=>x.id===id);
+      const already = UI.orderCart[id]||0;
+      if(already>=it.qty){ toast('الكمية المتاحة خلصت','err'); return; }
+      UI.orderCart[id]=already+1; renderOrderModal();
+    };
+  });
+  document.querySelectorAll('[data-inc]').forEach(b=>{
+    b.onclick=(e)=>{ e.stopPropagation(); const id=b.getAttribute('data-inc'); const it=items.find(x=>x.id===id);
+      if(UI.orderCart[id]>=it.qty){ toast('الكمية المتاحة خلصت','err'); return; }
+      UI.orderCart[id]++; renderOrderModal(); };
+  });
+  document.querySelectorAll('[data-dec]').forEach(b=>{
+    b.onclick=(e)=>{ e.stopPropagation(); const id=b.getAttribute('data-dec');
+      UI.orderCart[id]=Math.max(0,(UI.orderCart[id]||0)-1); renderOrderModal(); };
+  });
+  document.getElementById('order-confirm').onclick=()=>{
+    const orderedFor = document.getElementById('ord-for').value.trim();
+    if(target.kind==='table'){
+      ent.session.customer = document.getElementById('ord-table-customer').value.trim();
+    }
+    cartIds.forEach(id=>{
+      const it = items.find(x=>x.id===id);
+      const qty = UI.orderCart[id];
+      if(qty<=0) return;
+      it.qty = Math.max(0, it.qty-qty);
+      ent.session.orders.push({id:uid(), itemId:id, name:it.name, category:it.category||'product', qty, price:it.sellPrice, paid:false, orderedFor, time:Date.now()});
+    });
+    persist();
+    UI.activeOrderDevice=null; closeModal(); renderViewport();
+    if(cartIds.length>0) toast('تمت إضافة الطلب','ok');
+  };
+}
+
+/* ---- checkout modal (shared: devices + tables) ---- */
+function openCheckoutModal(kind, id){
+  UI.activeEndTarget = {kind,id};
+  UI.endDiscount = 0;
+  renderCheckoutModal();
+}
+function renderCheckoutModal(){
+  const target = UI.activeEndTarget;
+  const ent = getEntity(target);
+  if(!ent || ent.status!=='active') return;
+  const session = ent.session;
+  const isDevice = target.kind==='device';
+  const now = Date.now();
+  const durationMin = isDevice? Math.max(1, Math.round(sessionMinutes(session))) : 0;
+  const tCost = isDevice? timeCostFor(ent, session, now) : 0;
+  const oCost = ordersCostFor(session);
+  const paidAlready = (session.orders||[]).filter(o=>o.paid).reduce((s,o)=>s+o.qty*o.price,0);
+  const maxDiscount = isOwner()? 999999 : (S.permissions.maxDiscountEmployee||0);
+  const discount = Math.min(UI.endDiscount, tCost+oCost);
+  const total = Math.max(0, tCost+oCost-discount);
+  const dueNow = Math.max(0, total-paidAlready);
+  openModal(`
+    <div class="modal-head">
+      <div><div class="modal-title">الفاتورة</div><div class="modal-sub">${esc(ent.name)}${isDevice? ' · '+(session.mode==='dual'?'زوجي':'فردي'):''}</div></div>
+      <div class="close-x" id="mclose">✕</div>
+    </div>
+    ${isDevice? `
+    <div class="line"><div>بدأت</div><b>${fmtTime(session.start)}</b></div>
+    <div class="line"><div>انتهت</div><b>${fmtTime(now)}</b></div>
+    <div class="line"><div>المدة المحسوبة</div><b>${durationMin} دقيقة</b></div>
+    <div class="line"><div>حساب الوقت</div><b>${tCost} ${S.currency}</b></div>`:''}
+    ${(session.orders||[]).map(o=>`<div class="line"><div>${esc(o.name)} × ${o.qty} ${o.paid?'<span class=\"pill ok\">مدفوع</span>':''}</div><b>${o.qty*o.price} ${S.currency}</b></div>`).join('')}
+    <div class="field" style="margin-top:14px;">
+      <label>خصم (${S.currency})${!isOwner()? ' — حد أقصى '+maxDiscount+S.currency:''}</label>
+      <input class="text-input" id="es-discount" type="number" min="0" max="${maxDiscount}" value="${UI.endDiscount}">
+    </div>
+    <div class="total-row"><div>الإجمالي الكلي</div><div class="amt" style="font-size:20px;">${total} ${S.currency}</div></div>
+    ${paidAlready>0? `<div class="line"><div>مدفوع مسبقًا</div><b style="color:var(--success);">${paidAlready} ${S.currency}</b></div>`:''}
+    <div class="total-row"><div>المطلوب تحصيله الآن</div><div class="amt">${dueNow} ${S.currency}</div></div>
+    <div style="height:16px"></div>
+    <div class="card-actions">
+      <button class="btn btn-success" id="es-confirm">تأكيد الدفع وإنهاء</button>
+      <button class="btn btn-outline" id="mclose2">رجوع</button>
+    </div>
+  `);
+  document.getElementById('mclose').onclick=()=>{ UI.activeEndTarget=null; closeModal(); };
+  document.getElementById('mclose2').onclick=()=>{ UI.activeEndTarget=null; closeModal(); };
+  document.getElementById('es-discount').oninput=(e)=>{
+    let v = parseFloat(e.target.value)||0;
+    if(v>maxDiscount) v=maxDiscount;
+    if(v<0) v=0;
+    UI.endDiscount=v; renderCheckoutModal();
+  };
+  document.getElementById('es-confirm').onclick=()=>{
+    const finalNow = Date.now();
+    const finalT = isDevice? timeCostFor(ent, session, finalNow) : 0;
+    const finalO = ordersCostFor(session);
+    const finalDisc = Math.min(UI.endDiscount, finalT+finalO);
+    const finalTotal = Math.max(0, finalT+finalO-finalDisc);
+    S.invoices.push({
+      id:uid(), date:finalNow, deviceName:ent.name, kind:target.kind, customer:session.customer||'—',
+      mode:isDevice?session.mode:null, from:isDevice?session.start:finalNow, to:finalNow,
+      durationMin: isDevice? Math.max(1, Math.round((finalNow-session.start)/60000)) : 0,
+      timeCost:finalT, itemsCost:finalO, discount:finalDisc, total:finalTotal,
+      items: session.orders||[], by: currentUser().name
+    });
+    ent.status='free'; ent.session=null;
+    persist();
+    UI.activeEndTarget=null; closeModal(); renderViewport();
+    toast('تم تسجيل الفاتورة','ok');
+  };
+}
+
+/* ================= INVOICES VIEW ================= */
+function invoicesView(){
+  const list = S.invoices.filter(i=>isToday(i.date)).sort((a,b)=>b.date-a.date);
+  const total = list.reduce((s,i)=>s+i.total,0);
+  return `
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">فواتير اليوم</div>
+        <div class="panel-desc">${list.length} فاتورة · إجمالي ${money(total)} ${S.currency}</div>
+      </div>
+      <div class="export-menu">
+        <button class="btn btn-outline btn-sm" id="exp-day">⬇ تصدير اليوم</button>
+        <button class="btn btn-outline btn-sm" id="exp-week">⬇ تصدير الأسبوع</button>
+        <button class="btn btn-outline btn-sm" id="exp-month">⬇ تصدير الشهر</button>
+      </div>
+    </div>
+    ${list.length===0? `<div class="empty-state"><div class="big">🧾</div>لسه مفيش فواتير النهاردة</div>` : `
+    <div style="overflow-x:auto;">
+    <table>
+      <thead><tr>
+        <th>الجهاز/الطاولة</th><th>العميل</th><th>من</th><th>إلى</th><th>المدة</th>
+        <th>وقت</th><th>كافيه</th><th>خصم</th><th>الإجمالي</th><th>بواسطة</th>
+      </tr></thead>
+      <tbody>
+        ${list.map(i=>`<tr>
+          <td>${esc(i.deviceName)} <span class="tag">${i.kind==='table'?'طاولة':(i.mode==='dual'?'زوجي':'فردي')}</span></td>
+          <td>${esc(i.customer)}</td>
+          <td>${fmtTime(i.from)}</td>
+          <td>${fmtTime(i.to)}</td>
+          <td>${i.durationMin>0? i.durationMin+' د' : '—'}</td>
+          <td>${i.timeCost}</td>
+          <td>${i.itemsCost}</td>
+          <td>${i.discount>0? '-'+i.discount : '—'}</td>
+          <td style="color:var(--gold);font-weight:800;">${i.total} ${S.currency}</td>
+          <td style="color:var(--muted);font-size:12.5px;">${esc(i.by||'')}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    </div>`}
+  </div>`;
+}
+function attachInvoicesView(){
+  const b1=document.getElementById('exp-day'), b2=document.getElementById('exp-week'), b3=document.getElementById('exp-month');
+  if(b1) b1.onclick=()=>exportInvoices('day');
+  if(b2) b2.onclick=()=>exportInvoices('week');
+  if(b3) b3.onclick=()=>exportInvoices('month');
+}
+function exportInvoices(range){
+  let list, label;
+  if(range==='day'){ list=S.invoices.filter(i=>isToday(i.date)); label='اليوم'; }
+  else if(range==='week'){ list=S.invoices.filter(i=>isThisWeek(i.date)); label='الاسبوع'; }
+  else { list=S.invoices.filter(i=>isThisMonth(i.date)); label='الشهر'; }
+  if(list.length===0){ toast('مفيش فواتير في الفترة دي','err'); return; }
+  list = list.slice().sort((a,b)=>a.date-b.date);
+  const headers = ['التاريخ','الوقت من','الوقت إلى','الجهاز/الطاولة','النوع','العميل','المدة (دقيقة)','حساب الوقت','حساب الكافيه','الخصم','الإجمالي','بواسطة'];
+  const rows = list.map(i=>[
+    fmtDate(i.date), fmtTime(i.from), fmtTime(i.to), i.deviceName, i.kind==='table'?'طاولة':(i.mode==='dual'?'زوجي':'فردي'),
+    i.customer, i.durationMin, i.timeCost, i.itemsCost, i.discount, i.total, i.by||''
+  ]);
+  const total = list.reduce((s,i)=>s+i.total,0);
+  rows.push(['','','','','','','','','','الإجمالي الكلي', total, '']);
+  const csv = '\uFEFF'+[headers, ...rows].map(r=>r.map(v=>`"${(v+'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download = `فواتير-${label}-${fmtDate(Date.now())}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('تم تجهيز ملف التصدير','ok');
+}
+
+/* ================= INVENTORY VIEW ================= */
+function inventoryView(){
+  const showBuy = isOwner() || S.permissions.employeeSeeBuyPrices;
+  if(S.inventory.length===0){
+    return `<div class="panel">
+      <div class="panel-head">
+        <div><div class="panel-title">المخزون</div><div class="panel-desc">الكميات بتتخصم أوتوماتيك مع كل طلب</div></div>
+        ${isOwner()? `<button class="btn btn-grad btn-sm" id="add-item">+ صنف جديد</button>` : ''}
+      </div>
+      <div class="empty-state"><div class="big">📦</div>مفيش أصناف مضافة</div>
+    </div>`;
+  }
+  return CAT_ORDER.map(catKey=>{
+    const catItems = S.inventory.filter(it=>(it.category||'product')===catKey);
+    if(catItems.length===0) return '';
+    return `
+    <div class="panel">
+      <div class="panel-head">
+        <div><div class="panel-title">${CAT_LABELS[catKey]}</div>
+          <div class="panel-desc">${catKey==='product'? 'سعر الشراء = تكلفة الوحدة من المورد (زي علبة بيبسي أو ريدبول)' : 'سعر الشراء = تكلفة تحضير الكوب (المكونات) لكل مرة'}</div></div>
+        ${isOwner()? `<button class="btn btn-grad btn-sm" data-add-cat="${catKey}">+ إضافة</button>` : ''}
+      </div>
+      <div style="overflow-x:auto;">
+      <table>
+        <thead><tr>
+          <th>الصنف</th><th>سعر البيع</th>${showBuy?'<th>سعر التكلفة</th><th>الربح/وحدة</th>':''}<th>المتبقي</th><th>حد التنبيه</th><th>الحالة</th>${isOwner()?'<th></th>':''}
+        </tr></thead>
+        <tbody>
+          ${catItems.map(it=>{
+            const low = it.qty<=it.alertThreshold;
+            return `<tr>
+              <td>${esc(it.name)}</td>
+              <td>${it.sellPrice} ${S.currency}</td>
+              ${showBuy? `<td>${it.buyPrice} ${S.currency}</td><td style="color:var(--success);">${it.sellPrice-it.buyPrice} ${S.currency}</td>`:''}
+              <td>${it.qty}</td>
+              <td style="color:var(--muted);">${it.alertThreshold}</td>
+              <td><span class="pill ${low?'low':'ok'}">${low?'قرب يخلص':'متوفر'}</span></td>
+              ${isOwner()? `<td><div class="row-flex">
+                <div class="icon-del" data-restock="${it.id}" style="background:var(--success-soft);color:var(--success);" title="توريد">+</div>
+                <div class="icon-del" data-delitem="${it.id}" title="حذف">🗑</div>
+              </div></td>`:''}
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+      </div>
+    </div>`;
+  }).join('');
+}
+function attachInventoryView(){
+  const addBtn = document.getElementById('add-item');
+  if(addBtn) addBtn.onclick=()=>openAddItemModal('product');
+  document.querySelectorAll('[data-add-cat]').forEach(b=> b.onclick=()=>openAddItemModal(b.getAttribute('data-add-cat')));
+  document.querySelectorAll('[data-restock]').forEach(b=> b.onclick=()=>openRestockModal(b.getAttribute('data-restock')));
+  document.querySelectorAll('[data-delitem]').forEach(b=> b.onclick=()=>{
+    const it = S.inventory.find(x=>x.id===b.getAttribute('data-delitem'));
+    confirmAction(`حذف "${it.name}" من المخزون؟`, ()=>{
+      S.inventory = S.inventory.filter(x=>x.id!==it.id);
+      persist(); renderViewport(); toast('تم الحذف','ok');
+    });
+  });
+}
+function openAddItemModal(presetCategory){
+  const cat = presetCategory || 'product';
+  openModal(`
+    <div class="modal-head"><div class="modal-title">إضافة صنف</div><div class="close-x" id="mclose">✕</div></div>
+    <div class="field"><label>اسم الصنف</label><input class="text-input" id="it-name" placeholder="مثال: قهوة"></div>
+    <div class="field">
+      <label>نوع الصنف</label>
+      <select class="text-input" id="it-cat">
+        ${CAT_ORDER.map(c=>`<option value="${c}" ${c===cat?'selected':''}>${CAT_LABELS[c]}</option>`).join('')}
+      </select>
+    </div>
+    <div class="note-box" id="it-cat-hint" style="margin-bottom:14px;"></div>
+    <div class="two-col">
+      <div class="field"><label>سعر البيع</label><input class="text-input" id="it-sell" type="number" min="0"></div>
+      <div class="field"><label id="it-buy-label">سعر التكلفة</label><input class="text-input" id="it-buy" type="number" min="0"></div>
+    </div>
+    <div class="two-col">
+      <div class="field"><label id="it-qty-label">الكمية الحالية</label><input class="text-input" id="it-qty" type="number" min="0" value="0"></div>
+      <div class="field"><label>حد التنبيه</label><input class="text-input" id="it-alert" type="number" min="0" value="5"></div>
+    </div>
+    <button class="btn btn-grad btn-block" id="it-save">حفظ</button>
+  `);
+  const hints = {
+    product:'منتج جاهز يتباع زي ما هو (بيبسي، ريدبول، شيبسي...) — سعر التكلفة هو سعر شراء الوحدة من المورد، والكمية = عدد القطع المتاحة.',
+    hot:'مشروب بيتحضّر في المحل (شاي، قهوة، نسكافيه...) — سعر التكلفة هو تقدير تكلفة تحضير الكوب الواحد (المكونات)، والكمية = عدد الأكواب اللي تقدر تحضرها من المخزون الحالي.',
+    cold:'مشروب بارد بيتحضّر في المحل — سعر التكلفة هو تقدير تكلفة الكوب الواحد، والكمية = عدد الأكواب المتاحة.'
+  };
+  const updateHint=()=>{
+    const c = document.getElementById('it-cat').value;
+    document.getElementById('it-cat-hint').textContent = hints[c];
+    document.getElementById('it-qty-label').textContent = c==='product'? 'الكمية الحالية (قطعة)' : 'الكمية الحالية (كوب)';
+  };
+  updateHint();
+  document.getElementById('it-cat').onchange = updateHint;
+  document.getElementById('mclose').onclick=closeModal;
+  document.getElementById('it-save').onclick=()=>{
+    const name = document.getElementById('it-name').value.trim();
+    const category = document.getElementById('it-cat').value;
+    const sell = parseFloat(document.getElementById('it-sell').value)||0;
+    const buy = parseFloat(document.getElementById('it-buy').value)||0;
+    const qty = parseInt(document.getElementById('it-qty').value)||0;
+    const alert = parseInt(document.getElementById('it-alert').value)||0;
+    if(!name){ toast('اكتب اسم الصنف','err'); return; }
+    S.inventory.push({id:uid(), name, category, sellPrice:sell, buyPrice:buy, qty, alertThreshold:alert});
+    persist(); closeModal(); renderViewport(); toast('تمت الإضافة','ok');
+  };
+}
+function openRestockModal(itemId){
+  const it = S.inventory.find(x=>x.id===itemId);
+  openModal(`
+    <div class="modal-head"><div class="modal-title">توريد بضاعة — ${esc(it.name)}</div><div class="close-x" id="mclose">✕</div></div>
+    <div class="field"><label>الكمية المضافة</label><input class="text-input" id="rq" type="number" min="1" value="1"></div>
+    <button class="btn btn-grad btn-block" id="rq-save">تأكيد التوريد</button>
+  `);
+  document.getElementById('mclose').onclick=closeModal;
+  document.getElementById('rq-save').onclick=()=>{
+    const q = parseInt(document.getElementById('rq').value)||0;
+    it.qty += q; persist(); closeModal(); renderViewport(); toast('تم تحديث المخزون','ok');
+  };
+}
+
+/* ================= REPORTS VIEW ================= */
+function reportsView(){
+  const invToday = S.invoices.filter(i=>isToday(i.date));
+  const expToday = S.expenses.filter(e=>isToday(e.date));
+  const timeRev = invToday.reduce((s,i)=>s+i.timeCost,0);
+  const cafeRev = invToday.reduce((s,i)=>s+i.itemsCost,0);
+  const discounts = invToday.reduce((s,i)=>s+i.discount,0);
+  const collected = invToday.reduce((s,i)=>s+i.total,0);
+  const expensesTotal = expToday.reduce((s,e)=>s+e.amount,0);
+  // cost of goods sold today
+  let cogs = 0;
+  invToday.forEach(i=>{
+    (i.items||[]).forEach(it=>{
+      const inv = S.inventory.find(x=>x.id===it.itemId);
+      const buy = inv? inv.buyPrice : 0;
+      cogs += buy*it.qty;
+    });
+  });
+  const netProfit = collected - expensesTotal - cogs;
+
+  // top sellers
+  const sellMap = {};
+  invToday.forEach(i=>(i.items||[]).forEach(it=>{
+    if(!sellMap[it.name]) sellMap[it.name]={qty:0, rev:0, name:it.name, itemId:it.itemId};
+    sellMap[it.name].qty += it.qty; sellMap[it.name].rev += it.qty*it.price;
+  }));
+  const topSellers = Object.values(sellMap).sort((a,b)=>b.qty-a.qty);
+
+  // revenue per device
+  const devMap = {};
+  invToday.forEach(i=>{
+    if(!devMap[i.deviceName]) devMap[i.deviceName]={rev:0, min:0, count:0};
+    devMap[i.deviceName].rev += i.total; devMap[i.deviceName].min += i.durationMin; devMap[i.deviceName].count++;
+  });
+
+  const canSeeMoney = isOwner() || !S.permissions.hideRevenueFromEmployee;
+
+  return `
+  ${canSeeMoney? `
+  <div class="kpi-row">
+    <div class="kpi ${netProfit>=0?'pos':'neg'}"><div class="v">${money(netProfit)}</div><div class="l">صافي الربح</div></div>
+    <div class="kpi neg"><div class="v">${money(expensesTotal)}</div><div class="l">المصروفات</div></div>
+    <div class="kpi neg"><div class="v">${money(cogs)}</div><div class="l">تكلفة البضاعة</div></div>
+    <div class="kpi pos"><div class="v">${money(collected)}</div><div class="l">إجمالي التحصيل</div></div>
+    <div class="kpi neg"><div class="v">-${money(discounts)}</div><div class="l">الخصومات</div></div>
+    <div class="kpi gold"><div class="v">${money(cafeRev)}</div><div class="l">إيراد الكافيه</div></div>
+    <div class="kpi info"><div class="v">${money(timeRev)}</div><div class="l">إيراد الوقت</div></div>
+  </div>`: `<div class="note-box" style="margin-bottom:20px;">التقارير المالية متاحة لصاحب المحل فقط</div>`}
+
+  <div class="panel">
+    <div class="panel-head"><div><div class="panel-title">الأكثر مبيعاً اليوم</div></div></div>
+    ${topSellers.length===0? `<div class="empty-state">لسه مفيش مبيعات</div>` : `
+    <table><thead><tr><th>الصنف</th><th>الكمية</th><th>الإيراد</th></tr></thead>
+    <tbody>${topSellers.map(t=>`<tr><td>${esc(t.name)}</td><td>${t.qty}</td><td style="color:var(--gold);">${t.rev} ${S.currency}</td></tr>`).join('')}</tbody>
+    </table>`}
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><div><div class="panel-title">إيراد كل جهاز/طاولة اليوم</div></div></div>
+    ${Object.keys(devMap).length===0? `<div class="empty-state">لسه مفيش جلسات منتهية</div>` : `
+    <table><thead><tr><th>الجهاز</th><th>الإيراد</th><th>إجمالي الدقائق</th><th>الجلسات</th></tr></thead>
+    <tbody>${Object.entries(devMap).map(([name,v])=>`<tr><td>${esc(name)}</td><td style="color:var(--gold);">${v.rev} ${S.currency}</td><td>${v.min}</td><td>${v.count}</td></tr>`).join('')}</tbody>
+    </table>`}
+  </div>
+
+  ${isOwner()? `
+  <div class="panel">
+    <div class="panel-head">
+      <div><div class="panel-title">المصروفات</div><div class="panel-desc">إيجار، كهربا، صيانة، أي حاجة</div></div>
+      <button class="btn btn-grad btn-sm" id="add-exp">+ إضافة مصروف</button>
+    </div>
+    ${expToday.length===0? `<div class="empty-state">مفيش مصروفات مسجلة اليوم</div>` : `
+    <table><thead><tr><th>البند</th><th>الوقت</th><th>المبلغ</th><th></th></tr></thead>
+    <tbody>${expToday.map(e=>`<tr>
+      <td>${esc(e.title)}</td><td style="color:var(--muted);">${fmtTime(e.date)}</td>
+      <td style="color:var(--danger);">${money(e.amount)} ${S.currency}</td>
+      <td><div class="icon-del" data-delexp="${e.id}">🗑</div></td>
+    </tr>`).join('')}</tbody></table>`}
+  </div>`:''}
+  `;
+}
+function attachReportsView(){
+  const b = document.getElementById('add-exp');
+  if(b) b.onclick=openAddExpenseModal;
+  document.querySelectorAll('[data-delexp]').forEach(x=> x.onclick=()=>{
+    confirmAction('حذف المصروف؟', ()=>{
+      S.expenses = S.expenses.filter(e=>e.id!==x.getAttribute('data-delexp'));
+      persist(); renderViewport(); toast('تم الحذف','ok');
+    });
+  });
+}
+function openAddExpenseModal(){
+  openModal(`
+    <div class="modal-head"><div class="modal-title">إضافة مصروف</div><div class="close-x" id="mclose">✕</div></div>
+    <div class="field"><label>البند</label><input class="text-input" id="ex-title" placeholder="مثال: إيجار"></div>
+    <div class="field"><label>المبلغ</label><input class="text-input" id="ex-amt" type="number" min="0"></div>
+    <button class="btn btn-grad btn-block" id="ex-save">حفظ</button>
+  `);
+  document.getElementById('mclose').onclick=closeModal;
+  document.getElementById('ex-save').onclick=()=>{
+    const title = document.getElementById('ex-title').value.trim();
+    const amt = parseFloat(document.getElementById('ex-amt').value)||0;
+    if(!title){ toast('اكتب اسم البند','err'); return; }
+    S.expenses.push({id:uid(), title, amount:amt, date:Date.now()});
+    persist(); closeModal(); renderViewport(); toast('تمت الإضافة','ok');
+  };
+}
+
+/* ================= CONTROL PANEL ================= */
+function openControlPanelGate(){
+  UI.cpPinInput=''; UI.cpErr='';
+  if(!S.controlPin){
+    openModal(`
+      <div class="modal-head"><div class="modal-title">تعيين كلمة سر لوحة التحكم</div><div class="close-x" id="mclose">✕</div></div>
+      <div class="field"><label>كلمة السر الجديدة</label><input class="text-input" id="np1" type="password"></div>
+      <div class="field"><label>تأكيد كلمة السر</label><input class="text-input" id="np2" type="password"></div>
+      <button class="btn btn-grad btn-block" id="np-save">حفظ وفتح لوحة التحكم</button>
+      <div id="np-err" style="color:var(--danger);font-size:12.5px;margin-top:8px;text-align:center;"></div>
+    `);
+    document.getElementById('mclose').onclick=closeModal;
+    document.getElementById('np-save').onclick=()=>{
+      const p1=document.getElementById('np1').value, p2=document.getElementById('np2').value;
+      if(!p1 || p1.length<4){ document.getElementById('np-err').textContent='لازم 4 حروف على الأقل'; return; }
+      if(p1!==p2){ document.getElementById('np-err').textContent='كلمتين السر مش متطابقتين'; return; }
+      S.controlPin=p1; persist(); closeModal(); enterControlPanel();
+    };
+    return;
+  }
+  openModal(`
+    <div class="modal-head"><div class="modal-title">لوحة التحكم</div><div class="close-x" id="mclose">✕</div></div>
+    <div class="field"><label>كلمة السر</label><input class="text-input" id="cp-pin" type="password" autofocus></div>
+    <button class="btn btn-grad btn-block" id="cp-go">دخول</button>
+    <div id="cp-err" style="color:var(--danger);font-size:12.5px;margin-top:8px;text-align:center;"></div>
+  `);
+  document.getElementById('mclose').onclick=closeModal;
+  const go = ()=>{
+    const p = document.getElementById('cp-pin').value;
+    if(p===S.controlPin){ closeModal(); enterControlPanel(); }
+    else document.getElementById('cp-err').textContent='كلمة السر غلط';
+  };
+  document.getElementById('cp-go').onclick=go;
+  document.getElementById('cp-pin').addEventListener('keydown', e=>{ if(e.key==='Enter') go(); });
+}
+function enterControlPanel(){
+  UI.cp=true; UI.cpView='store';
+  renderControlPanel();
+}
+function exitControlPanel(){
+  UI.cp=false; render();
+}
+function renderControlPanel(){
+  const app = document.getElementById('app');
+  const sections = [['store','بيانات المحل']];
+  if(showDevicesTab()) sections.push(['devices','الأجهزة']);
+  if(showTablesTab()) sections.push(['tables','الطاولات']);
+  sections.push(['employees','الموظفين وأكواد الدخول']);
+  sections.push(['perm','صلاحيات الموظفين']);
+  sections.push(['license','الترخيص']);
+  sections.push(['danger','منطقة الخطر']);
+  app.innerHTML = `
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="icon-btn" id="cp-exit" title="خروج">↩</div>
+      <div style="font-weight:800;font-size:18px;">لوحة التحكم</div>
+    </div>
+    <div class="topbar-right"><div class="store-id"><div class="name">${esc(S.storeName)}</div></div></div>
+  </div>
+  <div class="tabs">
+    ${sections.map(s=>`<div class="tab ${UI.cpView===s[0]?'active':''}" data-cp="${s[0]}">${s[1]}</div>`).join('')}
+  </div>
+  <div id="cpViewport"></div>
+  `;
+  document.getElementById('cp-exit').onclick=exitControlPanel;
+  document.querySelectorAll('[data-cp]').forEach(t=> t.onclick=()=>{ UI.cpView=t.getAttribute('data-cp'); renderControlPanel(); });
+  renderCpViewport();
+}
+function renderCpViewport(){
+  const vp = document.getElementById('cpViewport');
+  if(UI.cpView==='store') { vp.innerHTML = cpStoreView(); attachCpStore(); }
+  else if(UI.cpView==='devices'){ vp.innerHTML = cpDevicesView(); attachCpDevices(); }
+  else if(UI.cpView==='tables'){ vp.innerHTML = cpTablesView(); attachCpTables(); }
+  else if(UI.cpView==='employees'){ vp.innerHTML = cpEmployeesView(); attachCpEmployees(); }
+  else if(UI.cpView==='perm'){ vp.innerHTML = cpPermView(); attachCpPerm(); }
+  else if(UI.cpView==='license'){ vp.innerHTML = cpLicenseView(); attachCpLicense(); }
+  else if(UI.cpView==='danger'){ vp.innerHTML = cpDangerView(); attachCpDanger(); }
+}
+
+/* -- store -- */
+function cpStoreView(){
+  return `
+  <div class="panel">
+    <div class="panel-head"><div><div class="panel-title">بيانات المحل</div><div class="panel-desc">الاسم بيظهر في كل الشاشات والفواتير</div></div></div>
+    <div class="two-col">
+      <div class="field"><label>اسم المحل</label><input class="text-input" id="cp-name" value="${esc(S.storeName)}"></div>
+      <div class="field"><label>رمز العملة</label><input class="text-input" id="cp-cur" value="${esc(S.currency)}" maxlength="3"></div>
+    </div>
+    <div class="field">
+      <label>نوع النشاط</label>
+      <select class="text-input" id="cp-biz">
+        ${BIZ_TYPES.map(b=>`<option value="${b[0]}" ${S.businessType===b[0]?'selected':''}>${b[1]} ${b[2]}</option>`).join('')}
+      </select>
+    </div>
+    <button class="btn btn-grad" id="cp-save-store">حفظ</button>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><div><div class="panel-title">تغيير كلمة سر لوحة التحكم</div></div></div>
+    <div class="two-col">
+      <div class="field"><label>كلمة السر الجديدة</label><input class="text-input" id="cp-pin1" type="password"></div>
+      <div class="field"><label>تأكيد</label><input class="text-input" id="cp-pin2" type="password"></div>
+    </div>
+    <button class="btn btn-outline" id="cp-save-pin">تحديث كلمة السر</button>
+  </div>`;
+}
+function attachCpStore(){
+  document.getElementById('cp-save-store').onclick=()=>{
+    S.storeName = document.getElementById('cp-name').value.trim()||S.storeName;
+    S.currency = document.getElementById('cp-cur').value.trim()||S.currency;
+    S.businessType = document.getElementById('cp-biz').value;
+    persist(); toast('تم الحفظ','ok'); renderControlPanel();
+  };
+  document.getElementById('cp-save-pin').onclick=()=>{
+    const p1=document.getElementById('cp-pin1').value, p2=document.getElementById('cp-pin2').value;
+    if(!p1||p1.length<4){ toast('لازم 4 حروف على الأقل','err'); return; }
+    if(p1!==p2){ toast('كلمتين السر مش متطابقتين','err'); return; }
+    S.controlPin=p1; persist(); toast('تم تحديث كلمة السر','ok');
+  };
+}
+
+/* -- devices -- */
+function cpDevicesView(){
+  return `
+  <div class="panel">
+    <div class="panel-head">
+      <div><div class="panel-title">أجهزة المحل</div><div class="panel-desc">كل جهاز بسعره الخاص — فردي وزوجي</div></div>
+      <button class="btn btn-grad btn-sm" id="cp-add-dev">+ جهاز</button>
+    </div>
+    ${S.devices.length===0? `<div class="empty-state">مفيش أجهزة مضافة</div>` : `
+    <table><thead><tr><th>الجهاز</th><th>فردي</th><th>زوجي</th><th></th></tr></thead>
+    <tbody>${S.devices.map(d=>`<tr>
+      <td>${esc(d.name)}</td>
+      <td>${d.rateSingle} ${S.currency}/س</td>
+      <td>${d.dual? d.rateDual+' '+S.currency+'/س' : '—'}</td>
+      <td><div class="icon-del" data-deldev="${d.id}">🗑</div></td>
+    </tr>`).join('')}</tbody></table>`}
+  </div>`;
+}
+function attachCpDevices(){
+  document.getElementById('cp-add-dev').onclick=openAddDeviceModal;
+  document.querySelectorAll('[data-deldev]').forEach(b=> b.onclick=()=>{
+    const d = S.devices.find(x=>x.id===b.getAttribute('data-deldev'));
+    if(d.status==='active'){ toast('مينفعش تحذف جهاز شغال حالياً','err'); return; }
+    confirmAction(`حذف جهاز "${d.name}"؟`, ()=>{
+      S.devices = S.devices.filter(x=>x.id!==d.id); persist(); renderCpViewport(); toast('تم الحذف','ok');
+    });
+  });
+}
+function openAddDeviceModal(){
+  openModal(`
+    <div class="modal-head"><div class="modal-title">إضافة جهاز</div><div class="close-x" id="mclose">✕</div></div>
+    <div class="field"><label>اسم الجهاز</label><input class="text-input" id="dv-name" placeholder="مثال: شاشة 1 / VIP"></div>
+    <div class="field">
+      <label class="row-flex" style="justify-content:space-between;">النظام الزوجي متاح؟
+        <label class="switch"><input type="checkbox" id="dv-dual" checked><span class="slider"></span></label>
+      </label>
+    </div>
+    <div class="two-col">
+      <div class="field"><label>سعر الساعة (فردي)</label><input class="text-input" id="dv-single" type="number" min="0" value="40"></div>
+      <div class="field"><label>سعر الساعة (زوجي)</label><input class="text-input" id="dv-dualp" type="number" min="0" value="70"></div>
+    </div>
+    <button class="btn btn-grad btn-block" id="dv-save">حفظ</button>
+  `);
+  document.getElementById('mclose').onclick=closeModal;
+  document.getElementById('dv-save').onclick=()=>{
+    const name = document.getElementById('dv-name').value.trim();
+    const dual = document.getElementById('dv-dual').checked;
+    const single = parseFloat(document.getElementById('dv-single').value)||0;
+    const dualp = parseFloat(document.getElementById('dv-dualp').value)||0;
+    if(!name){ toast('اكتب اسم الجهاز','err'); return; }
+    S.devices.push({id:uid(), name, dual, rateSingle:single, rateDual:dualp, status:'free', session:null});
+    persist(); closeModal(); renderCpViewport(); toast('تمت إضافة الجهاز','ok');
+  };
+}
+
+/* -- tables -- */
+function cpTablesView(){
+  return `
+  <div class="panel">
+    <div class="panel-head">
+      <div><div class="panel-title">طاولات المحل</div><div class="panel-desc">عدد الطاولات المتاحة للطلبات</div></div>
+      <button class="btn btn-grad btn-sm" id="cp-add-table">+ طاولة</button>
+    </div>
+    ${S.tables.length===0? `<div class="empty-state">مفيش طاولات مضافة</div>` : `
+    <table><thead><tr><th>الطاولة</th><th>عدد الأشخاص</th><th></th></tr></thead>
+    <tbody>${S.tables.map(t=>`<tr>
+      <td>${esc(t.name)}</td>
+      <td>${t.capacity||'—'}</td>
+      <td><div class="icon-del" data-deltable="${t.id}">🗑</div></td>
+    </tr>`).join('')}</tbody></table>`}
+  </div>`;
+}
+function attachCpTables(){
+  document.getElementById('cp-add-table').onclick=openAddTableModal;
+  document.querySelectorAll('[data-deltable]').forEach(b=> b.onclick=()=>{
+    const t = S.tables.find(x=>x.id===b.getAttribute('data-deltable'));
+    if(t.status==='active'){ toast('مينفعش تحذف طاولة مشغولة حالياً','err'); return; }
+    confirmAction(`حذف "${t.name}"؟`, ()=>{
+      S.tables = S.tables.filter(x=>x.id!==t.id); persist(); renderCpViewport(); toast('تم الحذف','ok');
+    });
+  });
+}
+function openAddTableModal(){
+  openModal(`
+    <div class="modal-head"><div class="modal-title">إضافة طاولة</div><div class="close-x" id="mclose">✕</div></div>
+    <div class="field"><label>اسم/رقم الطاولة</label><input class="text-input" id="tb-name" placeholder="مثال: طاولة 1"></div>
+    <div class="field"><label>عدد الأشخاص (اختياري)</label><input class="text-input" id="tb-cap" type="number" min="0"></div>
+    <button class="btn btn-grad btn-block" id="tb-save">حفظ</button>
+  `);
+  document.getElementById('mclose').onclick=closeModal;
+  document.getElementById('tb-save').onclick=()=>{
+    const name = document.getElementById('tb-name').value.trim();
+    const cap = parseInt(document.getElementById('tb-cap').value)||0;
+    if(!name){ toast('اكتب اسم الطاولة','err'); return; }
+    S.tables.push({id:uid(), name, capacity:cap, status:'free', session:null});
+    persist(); closeModal(); renderCpViewport(); toast('تمت إضافة الطاولة','ok');
+  };
+}
+
+/* -- employees -- */
+function empAdvancesTotal(e){ return (e.advances||[]).reduce((s,a)=>s+a.amount,0); }
+function cpEmployeesView(){
+  return `
+  <div class="panel">
+    <div class="panel-head">
+      <div><div class="panel-title">الموظفين وأكواد الدخول</div><div class="panel-desc">كل واحد شغال عنده يدخل بكوده الخاص — والفواتير بتتسجل باسمه</div></div>
+      <button class="btn btn-grad btn-sm" id="cp-add-emp">+ موظف جديد</button>
+    </div>
+    <table><thead><tr><th>الكود</th><th>الاسم</th><th>الدور</th><th>المرتب الشهري</th><th>إجمالي السلف</th><th>الصافي</th><th></th></tr></thead>
+    <tbody>${S.employees.map(e=>{
+      const adv = empAdvancesTotal(e);
+      const net = (e.salaryMonthly||0)-adv;
+      return `<tr>
+      <td style="letter-spacing:1px;">${e.code}</td>
+      <td>${esc(e.name)}</td>
+      <td><span class="tag">${e.role==='owner'?'صاحب المحل':'موظف'}</span></td>
+      <td>${money(e.salaryMonthly||0)} ${S.currency}</td>
+      <td style="color:${adv>0?'var(--danger)':'var(--muted)'};">${money(adv)} ${S.currency}</td>
+      <td style="color:var(--gold);font-weight:800;">${money(net)} ${S.currency}</td>
+      <td><div class="row-flex">
+        <button class="btn btn-outline btn-sm" data-editemp="${e.id}">تعديل</button>
+        ${S.employees.length>1? `<div class="icon-del" data-delemp="${e.id}">🗑</div>`:''}
+      </div></td>
+    </tr>`;
+    }).join('')}</tbody></table>
+    <div class="note-box" style="margin-top:14px;">الكود لازم يكون 5 أرقام لكل شخص، ولازم يفضل صاحب محل واحد على الأقل. "الصافي" = المرتب ناقص إجمالي السلف اللي أخدها الموظف من المحل.</div>
+  </div>`;
+}
+function attachCpEmployees(){
+  document.getElementById('cp-add-emp').onclick=()=>openAddEmployeeModal(null);
+  document.querySelectorAll('[data-editemp]').forEach(b=> b.onclick=()=>openAddEmployeeModal(b.getAttribute('data-editemp')));
+  document.querySelectorAll('[data-delemp]').forEach(b=> b.onclick=()=>{
+    const emp = S.employees.find(x=>x.id===b.getAttribute('data-delemp'));
+    if(emp.role==='owner' && S.employees.filter(x=>x.role==='owner').length<=1){
+      toast('لازم يفضل صاحب محل واحد على الأقل','err'); return;
+    }
+    confirmAction(`حذف "${emp.name}"؟`, ()=>{
+      S.employees = S.employees.filter(x=>x.id!==emp.id); persist(); renderCpViewport(); toast('تم الحذف','ok');
+    });
+  });
+}
+function openAddEmployeeModal(empId){
+  const existing = empId? S.employees.find(x=>x.id===empId) : null;
+  openModal(`
+    <div class="modal-head"><div class="modal-title">${existing?'تعديل موظف':'موظف جديد'}</div><div class="close-x" id="mclose">✕</div></div>
+    <div class="field"><label>الاسم</label><input class="text-input" id="em-name" value="${existing?esc(existing.name):''}" placeholder="اسم الموظف"></div>
+    <div class="field"><label>كود الدخول (5 أرقام)</label><input class="text-input" id="em-code" value="${existing?existing.code:''}" maxlength="5" inputmode="numeric"></div>
+    <div class="field"><label>الدور</label>
+      <select class="text-input" id="em-role">
+        <option value="employee" ${existing&&existing.role==='employee'?'selected':''}>موظف</option>
+        <option value="owner" ${existing&&existing.role==='owner'?'selected':''}>صاحب محل</option>
+      </select>
+    </div>
+    <div class="field"><label>المرتب الشهري (${S.currency})</label><input class="text-input" id="em-salary" type="number" min="0" value="${existing?(existing.salaryMonthly||0):0}"></div>
+    ${existing? `
+    <div class="divider"></div>
+    <div class="panel-desc" style="margin-bottom:10px;">إجمالي السلف حتى الآن: <b style="color:var(--gold);">${money(empAdvancesTotal(existing))} ${S.currency}</b></div>
+    <div class="row-flex" style="margin-bottom:14px;">
+      <input class="text-input small-input" id="em-adv-amt" type="number" min="0" placeholder="مبلغ السلفة" style="width:auto;flex:1;">
+      <button class="btn btn-outline btn-sm" id="em-add-adv">+ تسجيل سلفة</button>
+    </div>`:''}
+    <button class="btn btn-grad btn-block" id="em-save">حفظ</button>
+  `);
+  document.getElementById('mclose').onclick=closeModal;
+  if(existing){
+    document.getElementById('em-add-adv').onclick=()=>{
+      const amt = parseFloat(document.getElementById('em-adv-amt').value)||0;
+      if(amt<=0){ toast('اكتب مبلغ صحيح','err'); return; }
+      existing.advances = existing.advances||[];
+      existing.advances.push({id:uid(), date:Date.now(), amount:amt});
+      persist(); closeModal(); renderCpViewport(); toast('تم تسجيل السلفة','ok');
+    };
+  }
+  document.getElementById('em-save').onclick=()=>{
+    const name = document.getElementById('em-name').value.trim();
+    const code = document.getElementById('em-code').value.trim();
+    const role = document.getElementById('em-role').value;
+    const salary = parseFloat(document.getElementById('em-salary').value)||0;
+    if(!name){ toast('اكتب الاسم','err'); return; }
+    if(!/^\d{5}$/.test(code)){ toast('الكود لازم يكون 5 أرقام','err'); return; }
+    if(S.employees.some(e=>e.code===code && e.id!==(existing?existing.id:null))){ toast('الكود ده مستخدم قبل كده','err'); return; }
+    if(existing){
+      existing.name=name; existing.code=code; existing.role=role; existing.salaryMonthly=salary;
+    } else {
+      S.employees.push({id:uid(), name, code, role, salaryMonthly:salary, advances:[]});
+    }
+    persist(); closeModal(); renderCpViewport(); toast('تم الحفظ','ok');
+  };
+}
+
+/* ================= MY ACCOUNT (employee view) ================= */
+function myAccountView(){
+  const e = S.employees.find(x=>x.id===UI.loggedIn.id) || UI.loggedIn;
+  const adv = e.advances||[];
+  const total = empAdvancesTotal(e);
+  const net = (e.salaryMonthly||0)-total;
+  return `
+  <div class="panel">
+    <div class="panel-head"><div><div class="panel-title">حسابي</div><div class="panel-desc">${esc(e.name)} — ${e.role==='owner'?'صاحب المحل':'موظف'}</div></div></div>
+    <div class="kpi-row">
+      <div class="kpi gold"><div class="v">${money(e.salaryMonthly||0)}</div><div class="l">المرتب الشهري</div></div>
+      <div class="kpi neg"><div class="v">${money(total)}</div><div class="l">إجمالي السلف</div></div>
+      <div class="kpi ${net>=0?'pos':'neg'}"><div class="v">${money(net)}</div><div class="l">الصافي المستحق</div></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><div><div class="panel-title">سجل السلف</div></div></div>
+    ${adv.length===0? `<div class="empty-state">لسه مفيش سلف مسجلة</div>` : `
+    <table><thead><tr><th>التاريخ</th><th>المبلغ</th></tr></thead>
+    <tbody>${adv.slice().sort((a,b)=>b.date-a.date).map(a=>`<tr><td>${fmtDate(a.date)} — ${fmtTime(a.date)}</td><td style="color:var(--danger);">${money(a.amount)} ${S.currency}</td></tr>`).join('')}</tbody>
+    </table>`}
+  </div>`;
+}
+function attachMyAccountView(){}
+
+/* -- permissions -- */
+function cpPermView(){
+  const p = S.permissions;
+  return `
+  <div class="panel">
+    <div class="panel-head"><div><div class="panel-title">صلاحيات الموظفين</div><div class="panel-desc">بتنطبق على كل حساب من نوع «موظف»</div></div></div>
+    <div class="perm-row">
+      <div class="perm-txt"><strong>إخفاء إيراد اليوم عن الموظف</strong><span>الموظف يشوف الفواتير من غير المبالغ والإجماليات</span></div>
+      <label class="switch"><input type="checkbox" id="p1" ${p.hideRevenueFromEmployee?'checked':''}><span class="slider"></span></label>
+    </div>
+    <div class="perm-row">
+      <div class="perm-txt"><strong>الموظف يشوف أسعار الشراء</strong><span>لو مفعولة، يشوف الكميات بس من غير التكلفة والربح</span></div>
+      <label class="switch"><input type="checkbox" id="p2" ${p.employeeSeeBuyPrices?'checked':''}><span class="slider"></span></label>
+    </div>
+    <div class="perm-row">
+      <div class="perm-txt"><strong>السماح بإلغاء الفواتير</strong><span>لصاحب المحل فقط إلا لو فعلتها هنا</span></div>
+      <label class="switch"><input type="checkbox" id="p3" ${p.allowEmployeeCancelInvoice?'checked':''}><span class="slider"></span></label>
+    </div>
+    <div class="field" style="margin-top:16px;">
+      <label>أقصى خصم يقدر الموظف يعمله (${S.currency})</label>
+      <input class="text-input" id="p4" type="number" min="0" value="${p.maxDiscountEmployee}">
+    </div>
+    <button class="btn btn-grad" id="cp-save-perm">حفظ الإعدادات</button>
+  </div>`;
+}
+function attachCpPerm(){
+  document.getElementById('cp-save-perm').onclick=()=>{
+    S.permissions.hideRevenueFromEmployee = document.getElementById('p1').checked;
+    S.permissions.employeeSeeBuyPrices = document.getElementById('p2').checked;
+    S.permissions.allowEmployeeCancelInvoice = document.getElementById('p3').checked;
+    S.permissions.maxDiscountEmployee = parseFloat(document.getElementById('p4').value)||0;
+    persist(); toast('تم حفظ الإعدادات','ok');
+  };
+}
+
+/* -- license -- */
+function cpLicenseView(){
+  const lic = licenseStatus();
+  return `
+  <div class="panel">
+    <div class="panel-head"><div><div class="panel-title">حالة الترخيص</div><div class="panel-desc">كود الجهاز ده لازم ترسله لمزوّد النظام عشان يطلعلك كود تفعيل</div></div></div>
+    <div class="kpi-row">
+      <div class="kpi ${lic.activated?'pos':'gold'}"><div class="v">${lic.activated?'مفعّل':'تجربة'}</div><div class="l">الحالة</div></div>
+      <div class="kpi info"><div class="v">${lic.activated? lic.activeDaysLeft : lic.trialDaysLeft}</div><div class="l">أيام متبقية</div></div>
+    </div>
+    <div class="note-box" style="text-align:center;margin-bottom:16px;">
+      كود جهازك:<br><div style="font-size:20px;font-weight:900;letter-spacing:2px;color:var(--gold);margin-top:8px;">${lic.fp}</div>
+    </div>
+    <div class="field"><label>كود تفعيل جديد</label><input class="text-input" id="lic-code" placeholder="30-XXXXXXXXXX" style="text-align:center;"></div>
+    <button class="btn btn-grad" id="lic-activate">تفعيل</button>
+    <div id="lic-err" style="color:var(--danger);font-size:12.5px;margin-top:10px;"></div>
+  </div>`;
+}
+function attachCpLicense(){
+  document.getElementById('lic-activate').onclick=async ()=>{
+    const res = await tryActivate(document.getElementById('lic-code').value);
+    if(res.ok){ toast('تم التفعيل بنجاح','ok'); renderCpViewport(); }
+    else document.getElementById('lic-err').textContent = res.msg;
+  };
+}
+
+/* -- danger zone -- */
+function cpDangerView(){
+  return `
+  <div class="panel">
+    <div class="panel-head"><div><div class="panel-title">نسخة احتياطية</div>
+      <div class="panel-desc">البيانات محفوظة على هذا الجهاز فقط — خد نسخة بانتظام</div></div></div>
+    <div class="two-col">
+      <button class="btn btn-outline" id="backup-btn">⬇ تنزيل نسخة احتياطية</button>
+      <label class="btn btn-outline" style="text-align:center;cursor:pointer;">
+        ⬆ استرجاع نسخة احتياطية
+        <input type="file" id="restore-file" accept=".json" style="display:none;">
+      </label>
+    </div>
+  </div>
+  <div class="panel" style="border-color:#ff555555;">
+    <div class="panel-head"><div><div class="panel-title" style="color:var(--danger);">منطقة الخطر</div>
+      <div class="panel-desc">البيانات ميتمسحش إلا من هنا وبتأكيد صريح</div></div></div>
+    <div class="note-box" style="margin-bottom:16px;">حذف البيانات هيمسح كل الفواتير والمخزون والموظفين والأجهزة نهائيًا، وهترجع الشاشة لإعداد أول مرة. (رخصة التفعيل مش هتتمسح).</div>
+    <button class="btn btn-danger" id="wipe-btn">حذف كل بيانات النظام</button>
+  </div>`;
+}
+function attachCpDanger(){
+  document.getElementById('backup-btn').onclick=downloadBackup;
+  document.getElementById('restore-file').onchange=(e)=>{
+    if(e.target.files[0]) confirmAction('استرجاع النسخة الاحتياطية هيستبدل كل البيانات الحالية، متأكد؟', ()=>restoreBackup(e.target.files[0]));
+  };
+  document.getElementById('wipe-btn').onclick=()=>{
+    confirmAction('متأكد إنك عايز تمسح كل البيانات؟ الخطوة دي نهائية ومش هترجع.', ()=>{
+      openModal(`
+        <div class="modal-head"><div class="modal-title" style="color:var(--danger);">تأكيد نهائي</div><div class="close-x" id="mclose">✕</div></div>
+        <div class="field"><label>اكتب "حذف" للتأكيد</label><input class="text-input" id="wipe-confirm-text"></div>
+        <button class="btn btn-danger btn-block" id="wipe-final">حذف نهائي</button>
+      `);
+      document.getElementById('mclose').onclick=closeModal;
+      document.getElementById('wipe-final').onclick=()=>{
+        if(document.getElementById('wipe-confirm-text').value.trim()!=='حذف'){ toast('اكتب "حذف" بالظبط','err'); return; }
+        S = defaultState();
+        persist();
+        closeModal();
+        UI = {view:'devices', obType:null, loginCode:'', loginErr:'', cp:false, cpPinInput:'', cpErr:'', cpView:'store',
+              activeOrderDevice:null, orderCart:{}, activeEndTarget:null, endDiscount:0, saving:false, online:navigator.onLine};
+        render();
+        toast('تم حذف كل البيانات','ok');
+      };
+    });
+  };
+}
+
+/* ================= modal + confirm helpers ================= */
+function openModal(innerHtml, wide){
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `<div class="overlay" id="ov"><div class="modal ${wide?'wide':''}">${innerHtml}</div></div>`;
+  document.getElementById('ov').addEventListener('mousedown', e=>{ if(e.target.id==='ov') closeModal(); });
+}
+function closeModal(){ document.getElementById('modal-root').innerHTML=''; }
+function confirmAction(msg, onYes){
+  openModal(`
+    <div class="modal-head"><div class="modal-title">تأكيد</div><div class="close-x" id="mclose">✕</div></div>
+    <div style="font-size:14.5px;color:var(--text);margin-bottom:20px;line-height:1.7;">${esc(msg)}</div>
+    <div class="card-actions">
+      <button class="btn btn-danger" id="c-yes">تأكيد</button>
+      <button class="btn btn-outline" id="c-no">إلغاء</button>
+    </div>
+  `);
+  document.getElementById('mclose').onclick=closeModal;
+  document.getElementById('c-no').onclick=closeModal;
+  document.getElementById('c-yes').onclick=()=>{ closeModal(); onYes(); };
+}
+
+/* ================= boot ================= */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+loadLicense();
+touchLicense();
+setInterval(touchLicense, 30000);
+loadState();
+</script>
+</body>
+</html>
